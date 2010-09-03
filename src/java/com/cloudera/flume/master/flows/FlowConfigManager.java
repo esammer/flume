@@ -104,13 +104,18 @@ abstract public class FlowConfigManager implements ConfigurationManager {
   /**
    * Adds to the parent, and then adds to the specific flow's configuration
    * manager
+   * @return 
    */
   @Override
-  synchronized public void addLogicalNode(String physNode, String logicNode) {
-    parent.addLogicalNode(physNode, logicNode);
+  synchronized public boolean addLogicalNode(String physNode, String logicNode) {
+    boolean result;
+
+    result = parent.addLogicalNode(physNode, logicNode);
     String flowid = getFlowId(logicNode);
     ConfigurationManager fcfg = getCreateFlowConfigMan(flowid);
-    fcfg.addLogicalNode(physNode, logicNode);
+    result = result && fcfg.addLogicalNode(physNode, logicNode);
+
+    return result;
   }
 
   /**
@@ -232,13 +237,17 @@ abstract public class FlowConfigManager implements ConfigurationManager {
   }
 
   @Override
-  synchronized public void removeLogicalNode(String logicNode) throws IOException {
+  synchronized public boolean removeLogicalNode(String logicNode) throws IOException {
+    boolean result;
+
     String oldflow = getFlowId(logicNode);
-    parent.removeLogicalNode(logicNode);
+    result = parent.removeLogicalNode(logicNode);
     ConfigurationManager flowCfg = flows.get(oldflow);
     if (flowCfg != null) {
-      flowCfg.removeLogicalNode(logicNode);
+      result = result && flowCfg.removeLogicalNode(logicNode);
     }
+
+    return result;
   }
 
   /**
@@ -288,10 +297,15 @@ abstract public class FlowConfigManager implements ConfigurationManager {
   }
 
   @Override
-  synchronized public void unmapLogicalNode(String physNode, String logicNode) {
+  synchronized public boolean unmapLogicalNode(String physNode, String logicNode) {
+    boolean result;
+
     String flow = getFlowId(logicNode);
-    parent.unmapLogicalNode(physNode, logicNode);
-    getCreateFlowConfigMan(flow).unmapLogicalNode(physNode, logicNode);
+    result = parent.unmapLogicalNode(physNode, logicNode);
+    result = result
+        && getCreateFlowConfigMan(flow).unmapLogicalNode(physNode, logicNode);
+
+    return result;
   }
 
   @Override

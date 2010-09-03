@@ -67,8 +67,11 @@ public class CreateLogicalNodeForm {
         Preconditions.checkArgument(args.length == 2);
         String physical = args[0];
         String logical = args[1];
-        FlumeMaster.getInstance().getSpecMan()
-            .addLogicalNode(physical, logical);
+        if (!FlumeMaster.getInstance().getSpecMan()
+            .addLogicalNode(physical, logical)) {
+          throw new IllegalStateException("Unable to add logical node "
+              + logical + " to physical node " + physical);
+        }
       }
     };
   }

@@ -417,14 +417,18 @@ public class ZooKeeperConfigStore extends ConfigStore implements Watcher {
   }
 
   @Override
-  public synchronized void addLogicalNode(String physNode, String logicNode) {
+  public synchronized boolean addLogicalNode(String physNode, String logicNode) {
+    boolean result;
+
     Preconditions.checkArgument(client != null);
     if (nodeMap.containsEntry(physNode, logicNode)) {
-      // already present.
-      return;
+      // Already present. Report trivial success.
+      return true;
     }
-    nodeMap.put(physNode, logicNode);
+    result = nodeMap.put(physNode, logicNode);
     saveNodeMaps(NODEMAPS_PATH);
+
+    return result;
   }
 
   @Override
@@ -479,28 +483,38 @@ public class ZooKeeperConfigStore extends ConfigStore implements Watcher {
 
   /**
    * Remove a logical node from the logical node data flow mapping.
+   * @return 
    */
   @Override
-  synchronized public void removeLogicalNode(String logicNode)
+  synchronized public boolean removeLogicalNode(String logicNode)
       throws IOException {
+    boolean result;
+
     Preconditions.checkArgument(client != null);
     try {
       currentVersion = zkCounter.incrementAndGet();
     } catch (Exception e) {
       throw new IOException("Could not increment version counter...", e);
     }
-    cfgs.remove(logicNode);
+    result = cfgs.remove(logicNode) != null;
     saveConfigs(CFGS_PATH);
+
+    return result;
   }
 
   /**
    * Removes the mapping of physNode to a particular logicalNode
+   * @return 
    */
   @Override
-  synchronized public void unmapLogicalNode(String physNode, String logicNode) {
+  synchronized public boolean unmapLogicalNode(String physNode, String logicNode) {
+    boolean result;
+
     Preconditions.checkArgument(client != null);
-    nodeMap.remove(physNode, logicNode);
+    result = nodeMap.remove(physNode, logicNode);
     saveNodeMaps(NODEMAPS_PATH);
+
+    return result;
   }
 
   @Override

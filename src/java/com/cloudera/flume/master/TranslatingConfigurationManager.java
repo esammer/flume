@@ -353,20 +353,28 @@ abstract public class TranslatingConfigurationManager implements
 
   /**
    * Remove the logical node.
+   * @return 
    */
   @Override
-  synchronized public void removeLogicalNode(String logicNode)
+  synchronized public boolean removeLogicalNode(String logicNode)
       throws IOException {
+    boolean result;
+
+    result = true;
+
     // only remove once if parent == self
     if (parentMan != selfMan) {
-      parentMan.removeLogicalNode(logicNode);
+      result = result && parentMan.removeLogicalNode(logicNode);
     }
-    selfMan.removeLogicalNode(logicNode);
+    result = result && selfMan.removeLogicalNode(logicNode);
     try {
       updateAll();
     } catch (IOException e) {
       LOG.error("Error when removing logical node " + logicNode, e);
+      result = false;
     }
+
+    return result;
   }
 
   /**
@@ -419,18 +427,26 @@ abstract public class TranslatingConfigurationManager implements
 
   /**
    * {@inheritDoc}
+   * @return 
    */
   @Override
-  synchronized public void addLogicalNode(String physNode, String logicNode) {
+  synchronized public boolean addLogicalNode(String physNode, String logicNode) {
+    boolean result;
+
+    result = false;
+
     if (!getLogicalNodeMap().containsValue(logicNode)) {
-      parentMan.addLogicalNode(physNode, logicNode);
+      result = parentMan.addLogicalNode(physNode, logicNode);
     }
+
     try {
       updateAll();
     } catch (IOException e) {
       LOG.error("Error when mapping logical->physical node" + logicNode + "->"
           + physNode, e);
     }
+
+    return result;
   }
 
   /**
@@ -443,15 +459,22 @@ abstract public class TranslatingConfigurationManager implements
 
   /**
    * {@inheritDoc}
+   * @return 
    */
   @Override
-  synchronized public void unmapLogicalNode(String physNode, String logicNode) {
-    parentMan.unmapLogicalNode(physNode, logicNode);
+  synchronized public boolean unmapLogicalNode(String physNode, String logicNode) {
+    boolean result;
+
+    result = parentMan.unmapLogicalNode(physNode, logicNode);
+
     try {
       updateAll();
     } catch (IOException e) {
       LOG.error("Error when unmapping logical node " + e.getMessage(), e);
+      result = false;
     }
+
+    return result;
   }
 
   /**

@@ -263,29 +263,37 @@ public class ConfigManager implements ConfigurationManager {
   }
 
   @Override
-  synchronized public void addLogicalNode(String physNode, String logicNode) {
+  synchronized public boolean addLogicalNode(String physNode, String logicNode) {
     if (!logicalToPhysical.containsKey(logicNode)) {
       cfgStore.addLogicalNode(physNode, logicNode);
       logicalToPhysical.put(logicNode, physNode);
+
+      return true;
     } else {
       LOG.warn("Logical node " + logicNode
         + " is already assigned to physical node "
         + logicalToPhysical.get(logicNode) + ". Unmap it first.");
+
+      return false;
     }
   }
 
   /**
    * Removes a logical node from the logical to physical node mapping. This
    * should eventually cause a node to decommission the node.
+   * 
+   * @return true if the logical node was successfully unmapped, false
+   *         otherwise.
    */
   @Override
-  synchronized public void unmapLogicalNode(String physNode, String logicNode) {
+  synchronized public boolean unmapLogicalNode(String physNode, String logicNode) {
     if (physNode.equals(logicNode)) {
       LOG.warn("Not allowed to unmap primary logical node from physical node");
-      return; // just return here.
+      return false; // just return here.
     }
-    cfgStore.unmapLogicalNode(physNode, logicNode);
-    logicalToPhysical.remove(logicNode);
+
+    return cfgStore.unmapLogicalNode(physNode, logicNode)
+        && logicalToPhysical.remove(logicNode) != null;
   }
 
   @Override
@@ -327,17 +335,24 @@ public class ConfigManager implements ConfigurationManager {
   /**
    * This removes the logical node data flow configuration from both the flow
    * table and the phys-logical mapping
+   * @return 
    */
   @Override
-  synchronized public void removeLogicalNode(String logicNode)
+  synchronized public boolean removeLogicalNode(String logicNode)
       throws IOException {
-    cfgStore.removeLogicalNode(logicNode);
+    boolean result;
+
+    result = false;
+
+    result = cfgStore.removeLogicalNode(logicNode);
     String physical = getPhysicalNode(logicNode);
     if (physical != null) {
       // could be possible if node is unmapped and then later removed
-      cfgStore.unmapLogicalNode(physical, logicNode);
-      logicalToPhysical.remove(logicNode);
+      result = result && cfgStore.unmapLogicalNode(physical, logicNode);
+      result = result && (logicalToPhysical.remove(logicNode) != null);
     }
+
+    return result;
   }
 
   @Override

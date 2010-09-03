@@ -67,11 +67,12 @@ public class FailoverConfigurationManager extends
 
   /**
    * Remove the logical node.
+   * @return 
    */
   @Override
-  public void removeLogicalNode(String logicNode) throws IOException {
+  public boolean removeLogicalNode(String logicNode) throws IOException {
     failchainMan.removeCollector(logicNode);
-    super.removeLogicalNode(logicNode);
+    return super.removeLogicalNode(logicNode);
   }
 
   /**

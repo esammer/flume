@@ -50,8 +50,9 @@ abstract public class ConfigStore {
 
   /**
    * This adds a logical node to a physical node.
+   * @return 
    */
-  abstract public void addLogicalNode(String physNode, String logicNode);
+  abstract public boolean addLogicalNode(String physNode, String logicNode);
 
   /**
    * This get the list of logical nodes associated with a physical node.
@@ -73,12 +74,12 @@ abstract public class ConfigStore {
   /**
    * Removes the mapping of physNode to a particular logicalNode
    */
-  abstract public void unmapLogicalNode(String physNode, String logicNode);
+  abstract public boolean unmapLogicalNode(String physNode, String logicNode);
 
   /**
    * Remove a logical node from the logical node data flow mapping. 
    */
-  abstract public void removeLogicalNode(String logicNode) throws IOException;
+  abstract public boolean removeLogicalNode(String logicNode) throws IOException;
 
   /**
    * Unmaps all logical nodes from all physical nodes, except for the main

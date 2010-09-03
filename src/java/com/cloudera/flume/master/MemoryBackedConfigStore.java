@@ -75,12 +75,12 @@ public class MemoryBackedConfigStore extends ConfigStore {
   final ListMultimap<String, String> nodeMap = ArrayListMultimap
       .<String, String> create();
 
-  public void addLogicalNode(String physNode, String logicNode) {
+  public boolean addLogicalNode(String physNode, String logicNode) {
     if (nodeMap.containsEntry(physNode, logicNode)) {
       // already present.
-      return;
+      return true;
     }
-    nodeMap.put(physNode, logicNode);
+    return nodeMap.put(physNode, logicNode);
   }
 
   public List<String> getLogicalNodes(String physNode) {
@@ -112,18 +112,20 @@ public class MemoryBackedConfigStore extends ConfigStore {
 
   /**
    * Removes the mapping of physNode to a particular logicalNode
+   * @return 
    */
   @Override
-  public void removeLogicalNode(String logicNode) {
-    cfgs.remove(logicNode);
+  public boolean removeLogicalNode(String logicNode) {
+    return cfgs.remove(logicNode) != null;
   }
 
   /**
    * Remove a logical node from the logical node data flow mapping.
+   * @return 
    */
   @Override
-  public void unmapLogicalNode(String physNode, String logicNode) {
-    nodeMap.remove(physNode, logicNode);
+  public boolean unmapLogicalNode(String physNode, String logicNode) {
+    return nodeMap.remove(physNode, logicNode);
   }
 
   @Override
