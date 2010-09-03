@@ -58,7 +58,11 @@ public class DecommissionLogicalNodeForm {
       public void exec(String[] args) throws MasterExecException, IOException {
         Preconditions.checkArgument(args.length == 1);
         String logical = args[0];
-        FlumeMaster.getInstance().getSpecMan().removeLogicalNode(logical);
+
+        if (!FlumeMaster.getInstance().getSpecMan().removeLogicalNode(logical)) {
+          throw new IllegalStateException("Unable to remove logical node "
+              + logical);
+        }
       }
     };
   }

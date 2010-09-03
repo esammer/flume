@@ -264,17 +264,21 @@ public class ConfigManager implements ConfigurationManager {
 
   @Override
   synchronized public boolean addLogicalNode(String physNode, String logicNode) {
+    boolean result;
+
+    result = false;
+
     if (!logicalToPhysical.containsKey(logicNode)) {
-      cfgStore.addLogicalNode(physNode, logicNode);
+      result = cfgStore.addLogicalNode(physNode, logicNode);
       logicalToPhysical.put(logicNode, physNode);
 
-      return true;
+      return result;
     } else {
       LOG.warn("Logical node " + logicNode
         + " is already assigned to physical node "
         + logicalToPhysical.get(logicNode) + ". Unmap it first.");
 
-      return false;
+      return result;
     }
   }
 

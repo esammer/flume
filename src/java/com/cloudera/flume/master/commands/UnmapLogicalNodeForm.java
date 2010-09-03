@@ -68,8 +68,12 @@ public class UnmapLogicalNodeForm {
         Preconditions.checkArgument(args.length == 2);
         String physical = args[0];
         String logical = args[1];
-        FlumeMaster.getInstance().getSpecMan().unmapLogicalNode(physical,
-            logical);
+
+        if (!FlumeMaster.getInstance().getSpecMan()
+            .unmapLogicalNode(physical, logical)) {
+          throw new IllegalStateException("Unable to unmap logical node "
+              + logical + " from physical node " + physical);
+        }
       }
     };
   }
