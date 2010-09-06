@@ -97,6 +97,15 @@ public class CommandStatus {
     return curState == State.EXECING;
   }
 
+  /**
+   * Return true if and only if the command is in a final state. This means that
+   * the command is not queued or currently executing. The status may still be
+   * either failed or success.
+   */
+  public boolean isDone() {
+    return !isQueued() && !isInProgress();
+  }
+
   public Command getCommand() {
     return cmd;
   }

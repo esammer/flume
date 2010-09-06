@@ -27,9 +27,11 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -412,4 +414,58 @@ public class TestCommandManager {
     assertTrue(cmdman.isSuccess(good));
     assertTrue(Clock.unixTime() - start >= 5000);
   }
+
+  /**
+   * Test to ensure removing a mapping that didn't exist causes an error.
+   */
+  @Test
+  public void testUnmapLogicalNode() {
+    CommandManager cmdman;
+    Command cmd;
+    long cmdId;
+    CommandStatus status;
+
+    cmdman = new CommandManager();
+    cmd = new Command("unmap", "foo", "bar");
+
+    cmdman.start();
+
+    cmdId = cmdman.submit(cmd);
+
+    do {
+      status = cmdman.getStatus(cmdId);
+    } while (status != null && !status.isDone());
+
+    Assert.assertTrue("Did not fail to unmap non-existant mapping", status.isFailure());
+
+    cmdman.stop();
+  }
+
+  /**
+   * Test to ensure mapping an unknown logical node to anything fails.
+   */
+  @Test
+  public void testMapUnknownLogicalNode() {
+    CommandManager cmdman;
+    Command cmd;
+    long cmdId;
+    CommandStatus status;
+
+    cmdman = new CommandManager();
+    cmd = new Command("spawn", "foo", "bar");
+
+    cmdman.start();
+
+    cmdId = cmdman.submit(cmd);
+
+    do {
+      status = cmdman.getStatus(cmdId);
+    } while (status != null && !status.isDone());
+
+    Assert.assertTrue("Did not fail to spawn non-existant logical node",
+        status.isFailure());
+
+    cmdman.stop();
+  }
+
 }
