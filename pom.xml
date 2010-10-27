@@ -1,0 +1,89 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.cloudera</groupId>
+	<artifactId>flume</artifactId>
+	<version>0.9.1</version>
+	<name>Flume</name>
+	<description>Flume is a system for distributed, efficient, reliable collection of large amounts of data.</description>
+
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>utf-8</encoding>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<dependencies>
+
+		<!-- <dependency org="junit" name="junit" rev="4.8.1" conf="test->default"/> 
+			<dependency org="org.mockito" name="mockito-all" rev="1.8.1" conf="test->default"/> 
+			<dependency org="com.google.code.findbugs" name="findbugs" rev="1.3.9" conf="findbugs->default" 
+			/> <dependency org="com.google.code.findbugs" name="findbugs-ant" rev="1.3.9" 
+			conf="findbugs->default" /> <dependency org="net.sourceforge.cobertura" name="cobertura" 
+			rev="1.9.4.1" conf="coverage->default" transitive="false"/> <dependency org="org.apache.rat" 
+			name="apache-rat-tasks" rev="0.6" conf="releaseaudit->default"/> <dependency 
+			org="commons-lang" name="commons-lang" rev="2.4" conf="releaseaudit->default"/> 
+			<dependency org="commons-collections" name="commons-collections" rev="3.1" 
+			conf="releaseaudit->default"/> -->
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.8.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>findbugs</artifactId>
+			<version>1.3.9</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sourceforge.cobertura</groupId>
+			<artifactId>cobertura</artifactId>
+			<version>1.9.4.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.1</version>
+		</dependency>
+
+	</dependencies>
+
+</project>
