@@ -17,5 +17,6 @@ lib/ivy-*.jar
 src/avro-gen-java
 src/avro/*.avpr
 /docs/
-.eclipse
 pmd_report.html
+.eclipse
+target/
