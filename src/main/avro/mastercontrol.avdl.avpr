@@ -62,6 +62,22 @@
       "name" : "physicalNode",
       "type" : "string"
     } ]
+  }, {
+    "type" : "record",
+    "name" : "CommandStatusAvro",
+    "fields" : [ {
+      "name" : "cmdId",
+      "type" : "long"
+    }, {
+      "name" : "state",
+      "type" : "string"
+    }, {
+      "name" : "message",
+      "type" : "string"
+    }, {
+      "name" : "cmd",
+      "type" : "FlumeMasterCommandAvro"
+    } ]
   } ],
   "messages" : {
     "submit" : {
@@ -118,6 +134,13 @@
         "type" : "long"
       } ],
       "response" : "boolean"
+    },
+    "getCmdStatus" : {
+      "request" : [ {
+        "name" : "cmdid",
+        "type" : "long"
+      } ],
+      "response" : "CommandStatusAvro"
     }
   }
 }
