@@ -237,6 +237,24 @@
 			<version>1.5.11</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-core</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-json</artifactId>
+			<version>1.4</version>
+		</dependency>
+
 		<!-- FIXME: Using a Cloudera-packaged version of thrift 0.4.0 because it 
 			can't be found in a public repo. -esammer -->
 		<dependency>
