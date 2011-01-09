@@ -118,7 +118,7 @@
 				<artifactId>maven-thrift-plugin</artifactId>
 				<version>0.1.9-SNAPSHOT</version>
 				<configuration>
-					<thriftExecutable>/usr/local/bin/thrift</thriftExecutable>
+					<thriftExecutable>${thrift.executable}</thriftExecutable>
 				</configuration>
 				<executions>
 					<execution>
