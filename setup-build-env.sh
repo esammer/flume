@@ -47,14 +47,6 @@ if [ ! -d "${REPO_PATH}/org/apache/thrift/tools/maven-thrift-plugin/0.1.9-SNAPSH
   mvn install || error $!
 fi
 
-if [ ! -d "${REPO_PATH}/org/apache/thrift/tools/maven-thrift-plugin/0.1.9-SNAPSHOT" ] ; then
-  echo "Installing thrift maven plugin"
-  cd /tmp || error $!
-  git clone git://github.com/kimballa/maven-thrift-plugin.git || error $!
-  cd maven-thrift-plugin || error $!
-  mvn install || error $!
-fi
-
 echo "Injecting libs into your maven repo (${REPO_PATH}) that aren't available publicly."
 
 if [ ! -d "${REPO_PATH}/com/cloudera/org.apache.thrift/0.4.0" ] ; then
