@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.cloudera</groupId>
 	<artifactId>flume</artifactId>
-	<version>0.9.3</version>
+	<version>0.9.3-SNAPSHOT</version>
 	<name>Flume</name>
 	<description>Flume is a system for distributed, efficient, reliable collection of large amounts of data.</description>
 	<inceptionYear>2009</inceptionYear>
@@ -38,16 +38,67 @@
 	</mailingLists>
 
 	<scm>
-		<connection>git://github.com/cloudera/flume.git</connection>
-		<developerConnection>git@github.com:cloudera/flume.git</developerConnection>
+		<connection>scm:git:git://github.com/cloudera/flume.git</connection>
+		<developerConnection>scm:git:git@github.com:cloudera/flume.git</developerConnection>
 		<url>https://github.com/cloudera/flume</url>
 	</scm>
 
-	<repositories>
-
+        <pluginRepositories>
+          <pluginRepository>
+            <id>dtrott</id>
+            <url>http://maven.davidtrott.com/repository</url>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>
+          </pluginRepository>
+          <pluginRepository>
+            <id>com.cloudera.repository.thirdparty</id>
+            <url>https://repository.cloudera.com/content/repositories/third-party/</url>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>
+          </pluginRepository>
+          <pluginRepository>
+            <id>repository.jboss.org</id>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>
+          </pluginRepository>
+        </pluginRepositories>
+        
+        <repositories>
 		<repository>
 			<id>com.cloudera.repository.releases</id>
 			<url>https://repository.cloudera.com/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+
+		<repository>
+			<id>com.cloudera.repository.thirdparty</id>
+			<url>https://repository.cloudera.com/content/repositories/third-party/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+
+                <repository>
+			<id>dtrott</id>
+			<url>http://maven.davidtrott.com/repository</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -223,7 +274,7 @@
 			<plugin>
 				<groupId>org.apache.avro</groupId>
 				<artifactId>avro-maven-plugin</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>1.0-pre-cloudera</version>
 				<executions>
 					<execution>
 						<phase>generate-sources</phase>
@@ -262,7 +313,7 @@
 			<plugin>
 				<groupId>org.apache.thrift.tools</groupId>
 				<artifactId>maven-thrift-plugin</artifactId>
-				<version>0.1.9-SNAPSHOT</version>
+				<version>0.1.10</version>
 				<configuration>
 					<thriftExecutable>${thrift.executable}</thriftExecutable>
 				</configuration>
@@ -412,24 +463,24 @@
 		<!-- FIXME: Using a Cloudera-packaged version of thrift 0.4.0 because it 
 			can't be found in a public repo. -esammer -->
 		<dependency>
-			<groupId>com.cloudera</groupId>
-			<artifactId>org.apache.thrift</artifactId>
+			<groupId>org.apache.thrift</groupId>
+			<artifactId>libthrift</artifactId>
 			<version>0.4.0</version>
 		</dependency>
 
 		<!-- FIXME: This should be removed when we migrate the IRC source / sink 
 			to an external plugin rather than being part of the main tree. -esammer -->
 		<dependency>
-			<groupId>com.cloudera</groupId>
-			<artifactId>org.schwering.irc</artifactId>
+			<groupId>org.schwering.irc</groupId>
+			<artifactId>irclib</artifactId>
 			<version>1.0.0</version>
 		</dependency>
 
 		<!-- FIXME: Is this used? Can't find references to it except in tests. 
 			-esammer -->
 		<dependency>
-			<groupId>com.cloudera</groupId>
-			<artifactId>dk.brics.automaton</artifactId>
+			<groupId>dk.brics.automaton</groupId>
+			<artifactId>automaton</artifactId>
 			<version>1.0.0</version>
 		</dependency>
 
