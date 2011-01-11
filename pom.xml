@@ -5,8 +5,8 @@
 		<!-- NB: The version of the thrift compiler must match that of the dependency 
 			on the jar file below. -->
 		<thrift.executable>/usr/local/thrift-0.4.0/bin/thrift</thrift.executable>
-                <!-- Set default encoding to UTF-8 to remove maven complaints-->
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- Set default encoding to UTF-8 to remove maven complaints -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -45,37 +45,37 @@
 		<url>https://github.com/cloudera/flume</url>
 	</scm>
 
-        <pluginRepositories>
-          <pluginRepository>
-            <id>dtrott</id>
-            <url>http://maven.davidtrott.com/repository</url>
-            <releases>
-              <enabled>true</enabled>
-            </releases>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>
-          </pluginRepository>
-          <pluginRepository>
-            <id>com.cloudera.repository.thirdparty</id>
-            <url>https://repository.cloudera.com/content/repositories/third-party/</url>
-            <releases>
-              <enabled>true</enabled>
-            </releases>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>
-          </pluginRepository>
-          <pluginRepository>
-            <id>repository.jboss.org</id>
-            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>
-          </pluginRepository>
-        </pluginRepositories>
-        
-        <repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>dtrott</id>
+			<url>http://maven.davidtrott.com/repository</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>com.cloudera.repository.thirdparty</id>
+			<url>https://repository.cloudera.com/content/repositories/third-party/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>repository.jboss.org</id>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<repositories>
 		<repository>
 			<id>com.cloudera.repository.releases</id>
 			<url>https://repository.cloudera.com/content/groups/public/</url>
@@ -98,7 +98,7 @@
 			</snapshots>
 		</repository>
 
-                <repository>
+		<repository>
 			<id>dtrott</id>
 			<url>http://maven.davidtrott.com/repository</url>
 			<releases>
