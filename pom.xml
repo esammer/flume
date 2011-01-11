@@ -10,10 +10,38 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.cloudera</groupId>
 	<artifactId>flume</artifactId>
-	<version>0.9.1</version>
+	<version>0.9.3</version>
 	<name>Flume</name>
-	<description>Flume is a system for distributed, efficient, reliable
-		collection of large amounts of data.</description>
+	<description>Flume is a system for distributed, efficient, reliable collection of large amounts of data.</description>
+	<inceptionYear>2009</inceptionYear>
+
+	<issueManagement>
+		<system>JIRA</system>
+		<url>https://issues.cloudera.org/browse/FLUME</url>
+	</issueManagement>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<mailingLists>
+		<mailingList>
+			<archive>https://groups.google.com/a/cloudera.org/group/flume-user/topics</archive>
+			<name>flume-user</name>
+			<post>flume-user@cloudera.org</post>
+			<subscribe>https://groups.google.com/a/cloudera.org/group/flume-user/about</subscribe>
+			<unsubscribe>https://groups.google.com/a/cloudera.org/group/flume-user/about</unsubscribe>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
+		<connection>git://github.com/cloudera/flume.git</connection>
+		<developerConnection>git@github.com:cloudera/flume.git</developerConnection>
+		<url>https://github.com/cloudera/flume</url>
+	</scm>
 
 	<repositories>
 
@@ -37,6 +65,117 @@
 		</repository>
 
 	</repositories>
+
+	<developers>
+		<developer>
+			<email>jon@cloudera.com</email>
+			<id>jon@cloudera.com</id>
+			<name>Jon Hsieh</name>
+			<organization>Cloudera</organization>
+		</developer>
+		<developer>
+			<email>phunt@cloudera.com</email>
+			<id>phunt@cloudera.com</id>
+			<name>Patrick Hunt</name>
+			<organization>Cloudera</organization>
+		</developer>
+		<developer>
+			<email>henry@cloudera.com</email>
+			<id>henry@cloudera.com</id>
+			<name>Henry Robinson</name>
+			<organization>Cloudera</organization>
+		</developer>
+		<developer>
+			<email>esammer@cloudera.com</email>
+			<id>esammer@cloudera.com</id>
+			<name>E. Sammer</name>
+			<organization>Cloudera</organization>
+		</developer>
+		<developer>
+			<email>bruce.mitchener@gmail.com</email>
+			<id>bruce.mitchener@gmail.com</id>
+			<name>Bruce Mitchener</name>
+			<organization>-</organization>
+		</developer>
+	</developers>
+
+	<contributors>
+		<contributor>
+			<email>akimball83@gmail.com</email>
+			<name>Aaron Kimball</name>
+			<organization>Odiago</organization>
+		</contributor>
+		<contributor>
+			<email>-</email>
+			<name>Abhinay Mehta</name>
+			<organization>-</organization>
+		</contributor>
+		<contributor>
+			<email>baranau.a@gmail.com</email>
+			<name>Alex Baranau</name>
+			<organization>-</organization>
+		</contributor>
+		<contributor>
+			<email>aphadke@mozilla.com</email>
+			<name>Anurag Phadke</name>
+			<organization>Mozilla</organization>
+		</contributor>
+		<contributor>
+			<email>rayan@cloudera.com</email>
+			<name>Dani Rayan</name>
+			<organization>Cloudera</organization>
+		</contributor>
+		<contributor>
+			<email>darthur@digitalsmiths.com</email>
+			<name>David Arthur</name>
+			<organization>Digital Smiths</organization>
+		</contributor>
+		<contributor>
+			<email>david.zuelke@bitextender.com</email>
+			<name>David Zuelke</name>
+			<organization>Bit Extender</organization>
+		</contributor>
+		<contributor>
+			<email>dvryaboy@gmail.com</email>
+			<name>Dmitry Ryaboy</name>
+			<organization>Twitter</organization>
+		</contributor>
+		<contributor>
+			<email>jacob.rideout@returnpath.net</email>
+			<name>Jacob Rideout</name>
+			<organization>ReturnPath</organization>
+		</contributor>
+		<contributor>
+			<email>tlipcon@cloudera.com</email>
+			<name>Todd Lipcon</name>
+			<organization>Cloudera</organization>
+		</contributor>
+		<contributor>
+			<email>vibhor@cloudera.com</email>
+			<name>Vibhor Bhatt</name>
+			<organization>Cloudera</organization>
+		</contributor>
+		<contributor>
+			<email>newalex@cloudera.com</email>
+			<name>Alex Newman</name>
+			<organization>Cloudera</organization>
+		</contributor>
+		<contributor>
+			<email>patrick@cloudera.com</email>
+			<name>Patrick Angeles</name>
+			<organization>Cloudera</organization>
+		</contributor>
+		<contributor>
+			<email>pwendell@cloudera.com</email>
+			<name>Patrick Wendell</name>
+			<organization>Cloudera</organization>
+		</contributor>
+	</contributors>
+
+	<organization>
+		<name>Cloudera</name>
+		<url>http://www.cloudera.com</url>
+	</organization>
 
 	<build>
 		<plugins>
