@@ -169,6 +169,11 @@
 			<organization>-</organization>
 		</contributor>
 		<contributor>
+			<email>andrew@cloudera.com</email>
+			<name>Andrew Bayer</name>
+			<organization>Cloudera</organization>
+		</contributor>
+		<contributor>
 			<email>aphadke@mozilla.com</email>
 			<name>Anurag Phadke</name>
 			<organization>Mozilla</organization>
