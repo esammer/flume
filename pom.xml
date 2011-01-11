@@ -1,12 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+	<properties>
+		<!-- NB: The version of the thrift compiler must match that of the dependency 
+			on the jar file below. -->
+		<thrift.executable>/usr/local/thrift-0.4.0/bin/thrift</thrift.executable>
+	</properties>
+
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.cloudera</groupId>
 	<artifactId>flume</artifactId>
 	<version>0.9.1</version>
 	<name>Flume</name>
-	<description>Flume is a system for distributed, efficient, reliable collection of large amounts of data.</description>
+	<description>Flume is a system for distributed, efficient, reliable
+		collection of large amounts of data.</description>
 
 	<repositories>
 
@@ -156,6 +163,14 @@
 			<artifactId>findbugs</artifactId>
 			<version>1.3.9</version>
 			<scope>test</scope>
+			<exclusions>
+				<!-- The Xerces version getting pulled in from this dies with enabling 
+					XInclude support. Excluding for now. -esammer -->
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xercesImpl</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -268,6 +283,14 @@
 		<dependency>
 			<groupId>com.cloudera</groupId>
 			<artifactId>org.schwering.irc</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<!-- FIXME: Is this used? Can't find references to it except in tests. 
+			-esammer -->
+		<dependency>
+			<groupId>com.cloudera</groupId>
+			<artifactId>dk.brics.automaton</artifactId>
 			<version>1.0.0</version>
 		</dependency>
 
