@@ -61,5 +61,11 @@ if [ ! -d "${REPO_PATH}/com/cloudera/org.schwering.irc/1.0.0" ] ; then
     -Dversion=1.0.0 -Dpackaging=jar -DgeneratePom -Dfile=lib/irclib.jar
 fi
 
+if [ ! -d "${REPO_PATH}/com/cloudera/dk.brics.automaton/1.0.0" ] ; then
+  echo "inject: com.cloudear:dk.brics.automaton:1.0.0"
+  mvn install:install-file -DgroupId=com.cloudera -DartifactId=dk.brics.automaton \
+    -Dversion=1.0.0 -Dpackaging=jar -DgeneratePom -Dfile=lib/automaton.jar
+fi
+
 echo "Build environment should be sane. Try 'mvn package'."
 
