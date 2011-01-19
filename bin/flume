@@ -178,8 +178,8 @@ if [ "$cygwin" == false ] ; then
 
   append_jars_onto_classpath "${ZOOKEEPER_HOME}"
 
-  CLASSPATH="$CLASSPATH:$CMDPATH/build/classes"
-  append_jars_onto_classpath "$CMDPATH/build"
+  CLASSPATH="$CLASSPATH:$CMDPATH/target/classes"
+  append_jars_onto_classpath "$CMDPATH/target"
   append_jars_onto_classpath "${FLUME_HOME}"
 
 else
