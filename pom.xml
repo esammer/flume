@@ -335,35 +335,43 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.codehaus.mojo.jspc</groupId>
-				<artifactId>jspc-maven-plugin</artifactId>
-				<version>2.0-alpha-3-cloudera-1</version>
-				<configuration>
-					<includeInProject>true</includeInProject>
-					<packageName>org.apache.jsp</packageName>
-					<source>6</source>
-					<target>6</target>
-					<inputWebXml>${basedir}/src/main/webapp/META-INF/web.xml</inputWebXml>
-				</configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
 				<executions>
 					<execution>
 						<id></id>
 						<phase>compile</phase>
 						<goals>
-							<goal>compile</goal>
+							<goal>run</goal>
 						</goals>
+						<configuration>
+							<target>
+
+								<property name="project.build.source.webapps" value="${basedir}/src/main/resources/webapps" />
+								<property name="project.build.generated.jsp" value="${project.build.directory}/generated-sources/jsp-java" />
+
+								<taskdef classname="org.apache.jasper.JspC" name="jspcompiler" classpathref="maven.compile.classpath" />
+
+								<jspcompiler uriroot="${project.build.source.webapps}/flumeconfig"
+									outputdir="${project.build.generated.jsp}" package="org.apache.jsp"
+									webxml="${project.build.source.webapps}/flumeconfig/WEB-INF/web.xml"
+									verbose="1" />
+
+								<javac srcdir="${project.build.generated.jsp}" destdir="${project.build.generated.jsp}"
+									classpathref="maven.compile.classpath" source="1.6" target="1.6" />
+
+								<copy todir="${project.build.outputDirectory}">
+									<fileset dir="${project.build.generated.jsp}">
+										<include name="**/*.class" />
+									</fileset>
+								</copy>
+
+							</target>
+						</configuration>
 					</execution>
 				</executions>
-
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.mojo.jspc</groupId>
-						<artifactId>jspc-compiler-tomcat6</artifactId>
-						<version>2.0-alpha-3-cloudera-1</version>
-					</dependency>
-				</dependencies>
 			</plugin>
-
 		</plugins>
 	</build>
 
