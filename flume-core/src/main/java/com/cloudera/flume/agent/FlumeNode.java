@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import javax.ws.rs.core.Application;
 
@@ -284,7 +284,7 @@ public class FlumeNode implements Reportable {
 
         http.start();
       } catch (Throwable t) {
-        LOG.error("Unexcepted exception/error thrown! " + t.getMessage(), t);
+        LOG.error("Unexpected exception/error thrown! " + t.getMessage(), t);
       }
     }
 
@@ -420,8 +420,8 @@ public class FlumeNode implements Reportable {
 
   /**
    * This function checks the agent logs dir to make sure that the process has
-   * the ability to the directory if necesary, that the path if it does exist is
-   * a directory, and that it can infact create files inside of the directory.
+   * the ability to the directory if necessary, that the path if it does exist is
+   * a directory, and that it can in fact create files inside of the directory.
    * If it fails any of these, it throws an exception.
    * 
    * Finally, it checks to see if the path is in /tmp and warns the user that
@@ -501,7 +501,7 @@ public class FlumeNode implements Reportable {
     options.addOption("1", false,
         "Make flume node one shot (if closes or errors, exits)");
     options.addOption("m", false,
-        "Have flume hard exit if in likey gc thrash situation");
+        "Have flume hard exit if in likely GC thrash situation");
     options.addOption("h", false, "Print help information");
     options.addOption("v", false, "Print version information");
     try {

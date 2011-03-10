@@ -39,7 +39,9 @@ import com.cloudera.flume.core.FormatterDecorator;
 import com.cloudera.flume.core.MaskDecorator;
 import com.cloudera.flume.core.SelectDecorator;
 import com.cloudera.flume.core.extractors.RegexExtractor;
+import com.cloudera.flume.core.extractors.RegexAllExtractor;
 import com.cloudera.flume.core.extractors.SplitExtractor;
+import com.cloudera.flume.core.extractors.DateExtractor;
 import com.cloudera.flume.handlers.avro.AvroEventSink;
 import com.cloudera.flume.handlers.batch.BatchingDecorator;
 import com.cloudera.flume.handlers.batch.GunzipDecorator;
@@ -73,9 +75,7 @@ import com.cloudera.flume.handlers.hdfs.SeqfileEventSink;
 import com.cloudera.flume.handlers.irc.IrcSink;
 import com.cloudera.flume.handlers.rpc.RpcSink;
 import com.cloudera.flume.handlers.syslog.SyslogTcpSink;
-import com.cloudera.flume.handlers.thrift.ThriftAckedEventSink;
 import com.cloudera.flume.handlers.thrift.ThriftEventSink;
-import com.cloudera.flume.handlers.thrift.ThriftRawEventSink;
 import com.cloudera.flume.master.availability.FailoverChainSink;
 import com.cloudera.flume.reporter.aggregator.AccumulatorSink;
 import com.cloudera.flume.reporter.aggregator.CounterSink;
@@ -113,7 +113,7 @@ public class SinkFactoryImpl extends SinkFactory {
       { "agentBEChain", AgentFailChainSink.beBuilder() },
 
       // autoE2EChain, autoDFOChain and autoBEChains are essentially node
-      // specific "macros", and use let expresion shadowing
+      // specific "macros", and use let expression shadowing
       { "autoBEChain", EventSink.StubSink.builder("autoBEChain") },
       { "autoDFOChain", EventSink.StubSink.builder("autoDFOChain") },
       { "autoE2EChain", EventSink.StubSink.builder("autoE2EChain") },
@@ -149,10 +149,7 @@ public class SinkFactoryImpl extends SinkFactory {
       { "regexhisto", RegexGroupHistogramSink.builderSimple() },
       { "regexhistospec", RegexGroupHistogramSink.builder() },
 
-      // deprecated
-      { "tsink", ThriftEventSink.builder() },
-      { "tacksink", ThriftAckedEventSink.builder() },
-      { "trawsink", ThriftRawEventSink.builder() }, };
+  };
 
   // The actual types are <String, SinkDecoBuilder>
   static Object[][] decoList = {
@@ -183,7 +180,9 @@ public class SinkFactoryImpl extends SinkFactory {
 
       // extractors
       { "regex", RegexExtractor.builder() },
+      { "regexAll", RegexAllExtractor.builder() },
       { "split", SplitExtractor.builder() },
+      { "exDate", DateExtractor.builder() },
 
       // cpu / network tradeoffs
       { "batch", BatchingDecorator.builder() },
