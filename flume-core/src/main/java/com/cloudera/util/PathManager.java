@@ -97,6 +97,14 @@ public class PathManager {
     this.closedPath = new Path(baseDirectory, fileName);
   }
 
+  /**
+   * Opens a file for write using the supplied {@code fileSystem}.
+   * 
+   * @param fileSystem
+   *          {@link FileSystem} instance to use for file creation.
+   * @return An {@link OutputStream} for writing data.
+   * @throws IOException
+   */
   public synchronized OutputStream open(FileSystem fileSystem)
       throws IOException {
 
@@ -117,6 +125,16 @@ public class PathManager {
     }
   }
 
+  /**
+   * Transition a file from open to closed, renaming it appropriately. Note that
+   * this method doesn't close or flush the {@link OutputStream} returned by
+   * {@link #open(FileSystem)}.
+   * 
+   * @param fileSystem
+   *          The file system instance to use while renaming the file.
+   * @return true upon successful rename, false otherwise.
+   * @throws IOException
+   */
   public synchronized boolean close(FileSystem fileSystem) throws IOException {
 
     logger.debug("attempting to transition from " + state + " -> CLOSED for "
