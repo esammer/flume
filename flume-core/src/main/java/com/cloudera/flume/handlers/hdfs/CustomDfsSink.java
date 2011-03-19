@@ -42,6 +42,7 @@ import com.cloudera.flume.core.EventSink;
 import com.cloudera.flume.handlers.text.FormatFactory;
 import com.cloudera.flume.handlers.text.output.OutputFormat;
 import com.cloudera.flume.reporter.ReportEvent;
+import com.cloudera.util.PathManager;
 import com.google.common.base.Preconditions;
 
 /**
@@ -59,6 +60,7 @@ public class CustomDfsSink extends EventSink.Base {
   AtomicLong count = new AtomicLong();
   String path;
   Path dstPath;
+  PathManager pathManager;
 
   public CustomDfsSink(String path, OutputFormat format) {
     Preconditions.checkArgument(path != null);
@@ -81,10 +83,11 @@ public class CustomDfsSink extends EventSink.Base {
 
   @Override
   public void close() throws IOException {
-    LOG.info("Closing HDFS file: " + dstPath);
+    LOG.info("Closing HDFS file: " + pathManager.getOpenPath());
     writer.flush();
     LOG.info("done writing raw file to hdfs");
     writer.close();
+    pathManager.close(FileSystem.get(FlumeConfiguration.get()));
     writer = null;
   }
 
@@ -118,9 +121,10 @@ public class CustomDfsSink extends EventSink.Base {
       Compressor gzCmp = gzipC.createCompressor();
       dstPath = new Path(path + gzipC.getDefaultExtension());
       hdfs = dstPath.getFileSystem(conf);
-      writer = hdfs.create(dstPath);
+      pathManager = new PathManager(dstPath.getParent(), dstPath.getName());
+      writer = pathManager.open(hdfs);
       writer = gzipC.createOutputStream(writer, gzCmp);
-      LOG.info("Creating HDFS gzip compressed file: " + dstPath.toString());
+      LOG.info("Creating HDFS gzip compressed file: " + pathManager.getOpenPath());
       return;
     }
 
@@ -152,8 +156,9 @@ public class CustomDfsSink extends EventSink.Base {
       }
       dstPath = new Path(path);
       hdfs = dstPath.getFileSystem(conf);
-      writer = hdfs.create(dstPath);
-      LOG.info("Creating HDFS file: " + dstPath.toString());
+      pathManager = new PathManager(dstPath.getParent(), dstPath.getName());
+      writer = pathManager.open(hdfs);
+      LOG.info("Creating HDFS file: " + pathManager.getOpenPath());
       return;
     }
     //Must check instanceof codec as BZip2Codec doesn't inherit Configurable
@@ -163,8 +168,9 @@ public class CustomDfsSink extends EventSink.Base {
     }
     Compressor cmp = codec.createCompressor();
     dstPath = new Path(path + codec.getDefaultExtension());
+    pathManager = new PathManager(dstPath.getParent(), dstPath.getName());
     hdfs = dstPath.getFileSystem(conf);
-    writer = hdfs.create(dstPath);
+    writer = pathManager.open(hdfs);
     try {
       writer = codec.createOutputStream(writer, cmp);
     } catch (NullPointerException npe) {
@@ -176,7 +182,7 @@ public class CustomDfsSink extends EventSink.Base {
       throw new IOException("Unable to load compression codec " + codec);
     }
     LOG.info("Creating " + codec + " compressed HDFS file: "
-        + dstPath.toString());
+        + pathManager.getOpenPath());
   }
 
   public static SinkBuilder builder() {
