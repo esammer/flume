@@ -21,16 +21,19 @@ import com.cloudera.flume.handlers.avro.AvroEventSource;
 
 public class Log4jAvroAppenderTest {
 
+  private static final Logger logger = Logger
+      .getLogger(Log4jAvroAppenderTest.class);
+
   private static final int testServerPort = 12345;
   private static final int testEventCount = 100;
 
   private AvroEventSource eventSource;
-  private Logger logger;
+  private Logger avroLogger;
 
   @Before
   public void setUp() throws IOException {
     eventSource = new AvroEventSource(testServerPort);
-    logger = Logger.getLogger(Log4jAvroAppenderTest.class);
+    avroLogger = Logger.getLogger("avrologger");
 
     Log4jAvroAppender avroAppender = new Log4jAvroAppender();
 
@@ -42,9 +45,9 @@ public class Log4jAvroAppenderTest {
      * Clear out all other appenders associated with this logger to ensure we're
      * only hitting the Avro appender. -esammer
      */
-    logger.removeAllAppenders();
-    logger.addAppender(avroAppender);
-    logger.setLevel(Level.ALL);
+    avroLogger.removeAllAppenders();
+    avroLogger.addAppender(avroAppender);
+    avroLogger.setLevel(Level.ALL);
 
     eventSource.open();
   }
@@ -56,13 +59,13 @@ public class Log4jAvroAppenderTest {
 
   @Test
   public void testLog4jAvroAppender() {
-    Assert.assertNotNull(logger);
+    Assert.assertNotNull(avroLogger);
 
     int loggedCount = 0;
     int receivedCount = 0;
 
     for (int i = 0; i < testEventCount; i++) {
-      logger.info("test i:" + i);
+      avroLogger.info("test i:" + i);
       loggedCount++;
     }
 
@@ -115,6 +118,66 @@ public class Log4jAvroAppenderTest {
     executor.shutdown();
 
     Assert.assertEquals(loggedCount, receivedCount);
+  }
+
+  @Test
+  public void testConnectionRefused() {
+    ((Log4jAvroAppender) avroLogger.getAppender("avro")).setPort(44000);
+
+    boolean caughtException = false;
+
+    try {
+      avroLogger.error("This should fail");
+    } catch (Throwable t) {
+      logger.debug("Logging to a non-existant server failed (as expected)", t);
+
+      caughtException = true;
+    }
+
+    Assert.assertTrue(caughtException);
+  }
+
+  @Test
+  public void testReconnect() throws IOException {
+    avroLogger.info("message 1");
+
+    Event event = eventSource.next();
+
+    Assert.assertNotNull(event);
+    Assert.assertEquals("message 1", new String(event.getBody()));
+
+    eventSource.close();
+
+    boolean caughtException = false;
+
+    try {
+      avroLogger.info("message 2");
+    } catch (Throwable t) {
+      logger.debug("Logging to a closed server failed (as expected)", t);
+
+      caughtException = true;
+    }
+
+    Assert.assertTrue(caughtException);
+
+    eventSource.open();
+
+    caughtException = false;
+
+    try {
+      avroLogger.info("message 3");
+    } catch (Throwable t) {
+      logger.debug("Logging to a closed server failed (not expected)", t);
+
+      caughtException = true;
+    }
+
+    Assert.assertFalse(caughtException);
+
+    event = eventSource.next();
+
+    Assert.assertNotNull(event);
+    Assert.assertEquals("message 3", new String(event.getBody()));
   }
 
 }
