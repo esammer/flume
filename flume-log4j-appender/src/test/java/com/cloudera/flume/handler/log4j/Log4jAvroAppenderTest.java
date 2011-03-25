@@ -40,6 +40,7 @@ public class Log4jAvroAppenderTest {
     avroAppender.setName("avro");
     avroAppender.setHostname("localhost");
     avroAppender.setPort(testServerPort);
+    avroAppender.setReconnectAttempts(3);
 
     /*
      * Clear out all other appenders associated with this logger to ensure we're
@@ -58,7 +59,7 @@ public class Log4jAvroAppenderTest {
   }
 
   @Test
-  public void testLog4jAvroAppender() {
+  public void testLog4jAvroAppender() throws InterruptedException {
     Assert.assertNotNull(avroLogger);
 
     int loggedCount = 0;
@@ -117,6 +118,11 @@ public class Log4jAvroAppenderTest {
 
     executor.shutdown();
 
+    if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+      throw new IllegalStateException(
+          "Executor is refusing to shutdown cleanly");
+    }
+
     Assert.assertEquals(loggedCount, receivedCount);
   }
 
@@ -127,7 +133,7 @@ public class Log4jAvroAppenderTest {
     boolean caughtException = false;
 
     try {
-      avroLogger.error("This should fail");
+      avroLogger.info("message 1");
     } catch (Throwable t) {
       logger.debug("Logging to a non-existant server failed (as expected)", t);
 
@@ -148,19 +154,45 @@ public class Log4jAvroAppenderTest {
 
     eventSource.close();
 
+    Callable<Void> logCallable = new Callable<Void>() {
+
+      @Override
+      public Void call() throws Exception {
+        avroLogger.info("message 2");
+        return null;
+      }
+    };
+
+    ExecutorService logExecutor = Executors.newSingleThreadExecutor();
+
     boolean caughtException = false;
 
     try {
-      avroLogger.info("message 2");
+      logExecutor.submit(logCallable);
+
+      Thread.sleep(1500);
+
+      eventSource.open();
+
+      logExecutor.shutdown();
+
+      if (!logExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+        throw new IllegalStateException(
+            "Log executor is refusing to shutdown cleanly");
+      }
     } catch (Throwable t) {
-      logger.debug("Logging to a closed server failed (as expected)", t);
+      logger.error(
+          "Failed to reestablish a connection and log to an avroSource", t);
 
       caughtException = true;
     }
 
-    Assert.assertTrue(caughtException);
+    Assert.assertFalse(caughtException);
 
-    eventSource.open();
+    event = eventSource.next();
+
+    Assert.assertNotNull(event);
+    Assert.assertEquals("message 2", new String(event.getBody()));
 
     caughtException = false;
 
@@ -179,5 +211,4 @@ public class Log4jAvroAppenderTest {
     Assert.assertNotNull(event);
     Assert.assertEquals("message 3", new String(event.getBody()));
   }
-
 }

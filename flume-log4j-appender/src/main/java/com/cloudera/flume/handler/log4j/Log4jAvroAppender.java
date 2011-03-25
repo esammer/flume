@@ -18,6 +18,8 @@
 package com.cloudera.flume.handler.log4j;
 
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -187,12 +189,57 @@ public class Log4jAvroAppender extends AppenderSkeleton {
       connect();
     }
 
-    /*
-     * This is not the nicest way to do this. Ideally we'd skip the intermediate
-     * object and go from the log4j event directly to the AvroFlumeEvent.
-     * -esammer
-     */
-    client.append(AvroEventAdaptor.convert(new Log4JEventAdaptor(event)));
+    int attempt = 1;
+
+    while (reconnectAttempts == 0 || attempt <= reconnectAttempts) {
+      try {
+        /*
+         * This is not the nicest way to do this. Ideally we'd skip the
+         * intermediate object and go from the log4j event directly to the
+         * AvroFlumeEvent. -esammer
+         */
+        client.append(AvroEventAdaptor.convert(new Log4JEventAdaptor(event)));
+
+        break;
+      } catch (UndeclaredThrowableException e) {
+        /*
+         * This is yucky. We want to give client.append() $reconnectAttempts
+         * tries to succeed. If it causes an undeclared exception, we want to
+         * check if it's a ConnectException. If so, we want to rethrow it if
+         * we're out of attempts. Otherwise, we want to attempt to reconnect and
+         * try again. It would be nice to express this logic without repeating
+         * the loop condition and without doing things like extending the
+         * lifetime of the exception out of the catch block. -esammer
+         */
+        if (reconnectAttempts > 0 && attempt >= reconnectAttempts) {
+          throw e;
+        }
+
+        Throwable cause = e.getCause();
+
+        /*
+         * We're only interested in attempting to recover from connection
+         * exceptions right now. -esammer
+         */
+        if (cause instanceof ConnectException) {
+          LogLog.warn("Failed to communicate with server. reconnectAttempts:"
+              + reconnectAttempts + " attempt:" + attempt, cause);
+
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e1) {
+            Thread.currentThread().interrupt();
+          }
+
+          client = null;
+          connect();
+        } else {
+          throw e;
+        }
+      }
+
+      attempt++;
+    }
   }
 
   public FlumeEventAvroServer getClient() {
