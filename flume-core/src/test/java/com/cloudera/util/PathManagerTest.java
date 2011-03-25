@@ -24,7 +24,8 @@ public class PathManagerTest {
 
   @Test
   public void testStateTransitions() throws IOException {
-    PathManager pathManager = new PathManager(testBaseDirectory, "test1");
+    PathManager pathManager = new PathManager(fileSystem, testBaseDirectory,
+        "test1");
 
     Assert.assertNotNull(pathManager);
 
@@ -34,7 +35,7 @@ public class PathManagerTest {
     Assert.assertFalse(fileSystem.exists(pathManager.getClosedPath()));
 
     try {
-      outputStream = pathManager.open(fileSystem);
+      outputStream = pathManager.open();
     } catch (IllegalStateException e) {
       Assert.fail(e.getMessage());
     }
@@ -47,7 +48,7 @@ public class PathManagerTest {
 
     try {
       outputStream.close();
-      success = pathManager.close(fileSystem);
+      success = pathManager.close();
     } catch (IOException e) {
       Assert.fail(e.getMessage());
     } catch (IllegalStateException e) {
@@ -63,7 +64,8 @@ public class PathManagerTest {
 
   @Test(expected = IllegalStateException.class)
   public void testTransitionNewToClose() throws IOException {
-    PathManager pathManager = new PathManager(testBaseDirectory, "test1");
+    PathManager pathManager = new PathManager(fileSystem, testBaseDirectory,
+        "test1");
 
     Assert.assertNotNull(pathManager);
 
@@ -72,7 +74,7 @@ public class PathManagerTest {
 
     boolean success = false;
 
-    success = pathManager.close(fileSystem);
+    success = pathManager.close();
 
     // We shouldn't get here.
     Assert.assertFalse(success);
@@ -83,7 +85,8 @@ public class PathManagerTest {
   public void testCompressedFile() throws IOException {
     String testContent = "I am a simple test message\n";
 
-    PathManager pathManager = new PathManager(testBaseDirectory, "test3.gz");
+    PathManager pathManager = new PathManager(fileSystem, testBaseDirectory,
+        "test3.gz");
 
     Assert.assertNotNull(pathManager);
 
@@ -93,7 +96,7 @@ public class PathManagerTest {
     OutputStream outputStream = null;
 
     try {
-      outputStream = pathManager.open(fileSystem);
+      outputStream = pathManager.open();
 
       Assert.assertNotNull(outputStream);
       Assert.assertTrue(fileSystem.exists(pathManager.getOpenPath()));
@@ -113,7 +116,7 @@ public class PathManagerTest {
 
     boolean success = false;
 
-    success = pathManager.close(fileSystem);
+    success = pathManager.close();
 
     Assert.assertTrue(success);
     Assert.assertFalse(fileSystem.exists(pathManager.getOpenPath()));

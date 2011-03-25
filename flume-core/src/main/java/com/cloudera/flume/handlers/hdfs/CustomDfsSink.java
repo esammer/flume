@@ -87,7 +87,7 @@ public class CustomDfsSink extends EventSink.Base {
     writer.flush();
     LOG.info("done writing raw file to hdfs");
     writer.close();
-    pathManager.close(FileSystem.get(FlumeConfiguration.get()));
+    pathManager.close();
     writer = null;
   }
 
@@ -121,8 +121,8 @@ public class CustomDfsSink extends EventSink.Base {
       Compressor gzCmp = gzipC.createCompressor();
       dstPath = new Path(path + gzipC.getDefaultExtension());
       hdfs = dstPath.getFileSystem(conf);
-      pathManager = new PathManager(dstPath.getParent(), dstPath.getName());
-      writer = pathManager.open(hdfs);
+      pathManager = new PathManager(hdfs, dstPath.getParent(), dstPath.getName());
+      writer = pathManager.open();
       writer = gzipC.createOutputStream(writer, gzCmp);
       LOG.info("Creating HDFS gzip compressed file: " + pathManager.getOpenPath());
       return;
@@ -156,8 +156,8 @@ public class CustomDfsSink extends EventSink.Base {
       }
       dstPath = new Path(path);
       hdfs = dstPath.getFileSystem(conf);
-      pathManager = new PathManager(dstPath.getParent(), dstPath.getName());
-      writer = pathManager.open(hdfs);
+      pathManager = new PathManager(hdfs, dstPath.getParent(), dstPath.getName());
+      writer = pathManager.open();
       LOG.info("Creating HDFS file: " + pathManager.getOpenPath());
       return;
     }
@@ -168,9 +168,9 @@ public class CustomDfsSink extends EventSink.Base {
     }
     Compressor cmp = codec.createCompressor();
     dstPath = new Path(path + codec.getDefaultExtension());
-    pathManager = new PathManager(dstPath.getParent(), dstPath.getName());
     hdfs = dstPath.getFileSystem(conf);
-    writer = pathManager.open(hdfs);
+    pathManager = new PathManager(hdfs, dstPath.getParent(), dstPath.getName());
+    writer = pathManager.open();
     try {
       writer = codec.createOutputStream(writer, cmp);
     } catch (NullPointerException npe) {

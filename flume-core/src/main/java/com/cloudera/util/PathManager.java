@@ -23,20 +23,20 @@ import org.slf4j.LoggerFactory;
  * </tr>
  * <tr>
  * <td>NEW</td>
- * <td>The initial state. The file has not yet been {@link #open(FileSystem)}ed.
- * The only valid action is to open the file.</td>
+ * <td>The initial state. The file has not yet been {@link #open()}ed. The only
+ * valid action is to open the file.</td>
  * </tr>
  * <tr>
  * <td>OPEN</td>
- * <td>The file is open (i.e. {@link #open(FileSystem)} has been called) and an
+ * <td>The file is open (i.e. {@link #open()} has been called) and an
  * {@link OutputStream} is outstanding. The only valid action is to close the
  * file.</td>
  * </tr>
  * <tr>
  * <td>CLOSED</td>
- * <td>The file has been closed (i.e. {@link #close(FileSystem)} has been
- * called). No further action can be performed on this instance of
- * {@link PathManager}. A future improvement would be to support append here.</td>
+ * <td>The file has been closed (i.e. {@link #close()} has been called). No
+ * further action can be performed on this instance of {@link PathManager}. A
+ * future improvement would be to support append here.</td>
  * </tr>
  * <tr>
  * <td>INVALID</td>
@@ -48,17 +48,14 @@ import org.slf4j.LoggerFactory;
  * </p>
  * <p>
  * When in the NEW state, no file exists. The user is expected to call
- * {@link #open(FileSystem)} with the instance of the {@link FileSystem}
- * implementation to be used to create the file. On open, the file is created
- * with an
+ * {@link #open()}. On open, the file is created with an
  * <q>open file</q> path name. This is
  * {@code baseDirectory + File.separator + fileName + PathManager.openExtension}
  * and should indicate to of the file system that this file is currently in use
  * and should be avoided (if they desire consistency). When the developer is
  * done writing data to the file's {@link OutputStream}, they should call
- * {@link #close(FileSystem)}. This will transition to the CLOSED state and
- * commit the file by renaming it (i.e. removing the {@link PathManager}
- * .openExtension).
+ * {@link #close()}. This will transition to the CLOSED state and commit the
+ * file by renaming it (i.e. removing the {@link PathManager} .openExtension).
  * </p>
  * <p>
  * It is possible to understand what state the file is in by calling
@@ -72,6 +69,7 @@ public class PathManager {
       .getLogger(PathManager.class);
   private static final String openExtension = ".tmp";
 
+  private FileSystem fileSystem;
   private Path baseDirectory;
   private String fileName;
   private State state;
@@ -88,7 +86,8 @@ public class PathManager {
    * @param fileName
    *          The file name local part (e.g. foo.txt).
    */
-  public PathManager(Path baseDirectory, String fileName) {
+  public PathManager(FileSystem fileSystem, Path baseDirectory, String fileName) {
+    this.fileSystem = fileSystem;
     this.baseDirectory = baseDirectory;
     this.fileName = fileName;
     this.state = State.NEW;
@@ -98,15 +97,12 @@ public class PathManager {
   }
 
   /**
-   * Opens a file for write using the supplied {@code fileSystem}.
+   * Opens a file for write.
    * 
-   * @param fileSystem
-   *          {@link FileSystem} instance to use for file creation.
    * @return An {@link OutputStream} for writing data.
    * @throws IOException
    */
-  public synchronized OutputStream open(FileSystem fileSystem)
-      throws IOException {
+  public synchronized OutputStream open() throws IOException {
 
     logger.debug("attempting to transition from " + state + " -> OPEN for "
         + this);
@@ -128,14 +124,12 @@ public class PathManager {
   /**
    * Transition a file from open to closed, renaming it appropriately. Note that
    * this method doesn't close or flush the {@link OutputStream} returned by
-   * {@link #open(FileSystem)}.
+   * {@link #open()}.
    * 
-   * @param fileSystem
-   *          The file system instance to use while renaming the file.
    * @return true upon successful rename, false otherwise.
    * @throws IOException
    */
-  public synchronized boolean close(FileSystem fileSystem) throws IOException {
+  public synchronized boolean close() throws IOException {
 
     logger.debug("attempting to transition from " + state + " -> CLOSED for "
         + this);
@@ -158,7 +152,7 @@ public class PathManager {
   public String toString() {
     return "{ fileName:" + fileName + " state:" + state + " baseDirectory:"
         + baseDirectory + " openPath:" + openPath + " closedPath:" + closedPath
-        + " }";
+        + " fileSystem:" + fileSystem + " }";
   }
 
   public Path getBaseDirectory() {
@@ -169,7 +163,7 @@ public class PathManager {
     return fileName;
   }
 
-  public synchronized State getState() {
+  public State getState() {
     return state;
   }
 
