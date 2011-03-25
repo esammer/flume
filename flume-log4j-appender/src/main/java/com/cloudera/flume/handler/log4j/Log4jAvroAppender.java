@@ -48,7 +48,7 @@ import com.cloudera.flume.handlers.log4j.Log4JEventAdaptor;
  * <p>
  * The only parameter that absolutely must be set is the port on which the Flume
  * avroSource is listening. The appender assumes the Flume agent is running
- * locally and that we can community via the hostname
+ * locally and that we can communicate via the hostname
  * <q>localhost.</q> Users can also control the number of times to attempt
  * reconnection before a logging call fails.
  * </p>
