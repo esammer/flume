@@ -62,7 +62,8 @@ import com.cloudera.flume.handlers.log4j.Log4JEventAdaptor;
  * <dd>The port on which Flume's avroSource is configured to listen. (required)</dd>
  * <dt>reconnectAttempts</dt>
  * <dd>The maximum number of times we should attempt to connect to the
- * avroSource before throwing an exception. (default: 10)</dd>
+ * avroSource before throwing an exception. A setting of 0 (zero) means to try
+ * forever. (default: 10)</dd>
  * </dl>
  * </p>
  * <p>
@@ -87,6 +88,12 @@ import com.cloudera.flume.handlers.log4j.Log4JEventAdaptor;
  * </pre>
  * 
  * </p>
+ * <p>
+ * Note that this class does <b>not</b> attempt to be thread safe but inherits
+ * from {@link AppenderSkeleton} which handles proper synchronization during
+ * logging operations. This should only be important to those accessing the
+ * class directly or writing tests.
+ * </p>
  */
 public class Log4jAvroAppender extends AppenderSkeleton {
 
@@ -95,6 +102,11 @@ public class Log4jAvroAppender extends AppenderSkeleton {
 
   private FlumeEventAvroServer client;
 
+  /*
+   * NB: Log4j uses direct field access for configuration and thus great care
+   * should be taken when adding, removing, or renaming fields. These are part
+   * of the user visible configuration interface.
+   */
   protected String hostname;
   protected int port;
   protected int reconnectAttempts;
@@ -111,38 +123,32 @@ public class Log4jAvroAppender extends AppenderSkeleton {
 
     LogLog.debug("attempting to create an Avro connection");
 
-    while (true) {
-      if (reconnectAttempts == 0 || attempt <= reconnectAttempts) {
-        LogLog.debug("reconnectAttempts allow:" + reconnectAttempts
-            + " attempt:" + attempt);
+    while (reconnectAttempts == 0 || attempt <= reconnectAttempts) {
+      LogLog.debug("reconnectAttempts allow:" + reconnectAttempts + " attempt:"
+          + attempt);
 
-        client = attemptConnection();
+      client = attemptConnection();
 
-        if (client == null) {
-          LogLog.debug("connection failed - sleeping");
+      if (client == null) {
+        LogLog.debug("connection failed - sleeping");
 
-          try {
-            Thread.sleep(1000);
-          } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-          }
-
-          attempt++;
-        } else {
-          // Got a connection.
-          break;
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
         }
-      } else {
-        LogLog
-            .warn("Exhausted Avro server connection attempts (reconnectAttempts:"
-                + reconnectAttempts
-                + " attempt:"
-                + attempt
-                + "). This appender won't function.");
 
-        break;
+        attempt++;
+      } else {
+        // Got a connection.
+        return;
       }
     }
+
+    LogLog.warn("Exhausted Avro server connection attempts (reconnectAttempts:"
+        + reconnectAttempts + " attempt:" + attempt
+        + "). This appender won't function.");
+
   }
 
   private FlumeEventAvroServer attemptConnection() {
@@ -196,7 +202,7 @@ public class Log4jAvroAppender extends AppenderSkeleton {
         /*
          * This is not the nicest way to do this. Ideally we'd skip the
          * intermediate object and go from the log4j event directly to the
-         * AvroFlumeEvent. -esammer
+         * AvroFlumeEvent.
          */
         client.append(AvroEventAdaptor.convert(new Log4JEventAdaptor(event)));
 
@@ -209,7 +215,7 @@ public class Log4jAvroAppender extends AppenderSkeleton {
          * we're out of attempts. Otherwise, we want to attempt to reconnect and
          * try again. It would be nice to express this logic without repeating
          * the loop condition and without doing things like extending the
-         * lifetime of the exception out of the catch block. -esammer
+         * lifetime of the exception out of the catch block.
          */
         if (reconnectAttempts > 0 && attempt >= reconnectAttempts) {
           throw e;
@@ -219,7 +225,7 @@ public class Log4jAvroAppender extends AppenderSkeleton {
 
         /*
          * We're only interested in attempting to recover from connection
-         * exceptions right now. -esammer
+         * exceptions right now.
          */
         if (cause instanceof ConnectException) {
           LogLog.warn("Failed to communicate with server. reconnectAttempts:"

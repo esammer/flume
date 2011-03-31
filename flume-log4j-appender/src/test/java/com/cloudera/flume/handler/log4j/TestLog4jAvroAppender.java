@@ -36,10 +36,10 @@ import org.junit.Test;
 import com.cloudera.flume.core.Event;
 import com.cloudera.flume.handlers.avro.AvroEventSource;
 
-public class Log4jAvroAppenderTest {
+public class TestLog4jAvroAppender {
 
   private static final Logger logger = Logger
-      .getLogger(Log4jAvroAppenderTest.class);
+      .getLogger(TestLog4jAvroAppender.class);
 
   private static final int testServerPort = 12345;
   private static final int testEventCount = 100;
@@ -61,7 +61,7 @@ public class Log4jAvroAppenderTest {
 
     /*
      * Clear out all other appenders associated with this logger to ensure we're
-     * only hitting the Avro appender. -esammer
+     * only hitting the Avro appender.
      */
     avroLogger.removeAllAppenders();
     avroLogger.addAppender(avroAppender);
@@ -90,7 +90,6 @@ public class Log4jAvroAppenderTest {
     /*
      * We perform this in another thread so we can put a time SLA on it by using
      * Future#get(). Internally, the AvroEventSource uses a BlockingQueue.
-     * -esammer
      */
     ExecutorService executor = Executors.newSingleThreadExecutor();
     Callable<Event> callable = new Callable<Event>() {
@@ -108,7 +107,7 @@ public class Log4jAvroAppenderTest {
         /*
          * We must receive events in less than 1 second. This should be more
          * than enough as all events should be held in AvroEventSource's
-         * BlockingQueue. -esammer
+         * BlockingQueue.
          */
         Event event = future.get(1, TimeUnit.SECONDS);
 
