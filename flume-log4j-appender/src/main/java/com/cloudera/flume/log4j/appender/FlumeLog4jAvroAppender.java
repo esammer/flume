@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cloudera.flume.handler.log4j;
+package com.cloudera.flume.log4j.appender;
 
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -73,7 +73,7 @@ import com.cloudera.flume.handlers.log4j.Log4JEventAdaptor;
  *  log4j.debug = true
  *  log4j.rootLogger = INFO, flume
  *  
- *  log4j.appender.flume = com.cloudera.flume.handler.log4j.Log4jAvroAppender
+ *  log4j.appender.flume = com.cloudera.flume.log4j.appender.FlumeLog4jAvroAppender
  *  log4j.appender.flume.layout = org.apache.log4j.TTCCLayout
  *  log4j.appender.flume.port = 12345
  *  log4j.appender.flume.hostname = localhost
@@ -95,7 +95,7 @@ import com.cloudera.flume.handlers.log4j.Log4JEventAdaptor;
  * class directly or writing tests.
  * </p>
  */
-public class Log4jAvroAppender extends AppenderSkeleton {
+public class FlumeLog4jAvroAppender extends AppenderSkeleton {
 
   private static final int defaultReconnectAttempts = 10;
   private static final String defaultHostname = "localhost";
@@ -111,7 +111,7 @@ public class Log4jAvroAppender extends AppenderSkeleton {
   protected int port;
   protected int reconnectAttempts;
 
-  public Log4jAvroAppender() {
+  public FlumeLog4jAvroAppender() {
     super();
 
     reconnectAttempts = defaultReconnectAttempts;

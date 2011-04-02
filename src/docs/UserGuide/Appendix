@@ -456,6 +456,8 @@ Refer to *Limiting Data Transfer Rate between Source-Sink pairs* section for mor
 
 include::Environment[]
 
+include::Log4jSupport[]
+
 === flume-site.xml configuration settings
 
 include::Troubleshooting[]

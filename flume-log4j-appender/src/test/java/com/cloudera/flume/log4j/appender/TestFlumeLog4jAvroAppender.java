@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cloudera.flume.handler.log4j;
+package com.cloudera.flume.log4j.appender;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -35,11 +35,12 @@ import org.junit.Test;
 
 import com.cloudera.flume.core.Event;
 import com.cloudera.flume.handlers.avro.AvroEventSource;
+import com.cloudera.flume.log4j.appender.FlumeLog4jAvroAppender;
 
-public class TestLog4jAvroAppender {
+public class TestFlumeLog4jAvroAppender {
 
   private static final Logger logger = Logger
-      .getLogger(TestLog4jAvroAppender.class);
+      .getLogger(TestFlumeLog4jAvroAppender.class);
 
   private static final int testServerPort = 12345;
   private static final int testEventCount = 100;
@@ -52,7 +53,7 @@ public class TestLog4jAvroAppender {
     eventSource = new AvroEventSource(testServerPort);
     avroLogger = Logger.getLogger("avrologger");
 
-    Log4jAvroAppender avroAppender = new Log4jAvroAppender();
+    FlumeLog4jAvroAppender avroAppender = new FlumeLog4jAvroAppender();
 
     avroAppender.setName("avro");
     avroAppender.setHostname("localhost");
@@ -144,7 +145,7 @@ public class TestLog4jAvroAppender {
 
   @Test
   public void testConnectionRefused() {
-    ((Log4jAvroAppender) avroLogger.getAppender("avro")).setPort(44000);
+    ((FlumeLog4jAvroAppender) avroLogger.getAppender("avro")).setPort(44000);
 
     boolean caughtException = false;
 
