@@ -23,11 +23,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.cloudera.flume.core.Event;
 import com.cloudera.flume.core.EventSource;
 import com.cloudera.flume.handlers.hdfs.SeqfileEventSource;
 import com.cloudera.util.Clock;
@@ -38,18 +40,18 @@ import com.cloudera.util.FileUtil;
  * empty file, truncated file.
  */
 public class TestNaiveFileWALSource {
-
+  Logger LOG = LoggerFactory.getLogger(TestNaiveFileWALSource.class);
   // has 5 good entries.
-  final static String WAL_OK = "src/data/hadoop_logs_5.hdfs";
+  final static String WAL_OK = "data/hadoop_logs_5.hdfs";
 
   // this file has been prematurely truncated and is thus corrupt.
-  final static String WAL_CORRUPT = "src/data/hadoop_logs_5.hdfs.aa";
+  final static String WAL_CORRUPT = "data/hadoop_logs_5.hdfs.aa";
 
   @Before
   public void setUp() {
     System.out.println("====================================================");
-    Logger LOG = Logger.getLogger(NaiveFileWALManager.class.getName());
-    LOG.setLevel(Level.DEBUG);
+    org.apache.log4j.Logger.getLogger(NaiveFileWALManager.class.getName())
+        .setLevel(Level.DEBUG);
   }
 
   /**
@@ -160,7 +162,8 @@ public class TestNaiveFileWALSource {
     emptyfile.deleteOnExit();
 
     // copy an ok file that has exactly 5 entries into the wal/logged dir
-    File orig = new File(WAL_OK);
+    File orig = new File(getClass().getClassLoader().getResource(WAL_OK)
+        .getFile());
     File ok = new File(logdir, "ok.0000000.20091104-101213997-0800.seq");
     FileUtil.dumbfilecopy(orig, ok);
 
@@ -181,7 +184,13 @@ public class TestNaiveFileWALSource {
           for (int i = 0; i < 10; i++) {
             // this eventually blocks and never make progress.
             // It will always read the good entries and skip over the bad file.
-            src.next();
+            Event e = src.next();
+            LOG.warn("SurviveEmptyFile ok event {}: {} ", i, e);
+            if (e == null) {
+              // If the source is closing, it may return null here. This could
+              // result in extra count increments if we don't exit here.
+              return;
+            }
             count.getAndIncrement();
           }
         } catch (Exception e) {
@@ -237,7 +246,8 @@ public class TestNaiveFileWALSource {
     emptyfile2.deleteOnExit();
 
     // copy an ok file that has exactly 5 entries
-    File orig = new File(WAL_OK);
+    File orig = new File(getClass().getClassLoader().getResource(WAL_OK)
+        .getFile());
     File ok = new File(logdir, "ok.0000000.20091104-101213997-0800.seq");
     FileUtil.dumbfilecopy(orig, ok);
 
@@ -258,7 +268,13 @@ public class TestNaiveFileWALSource {
           for (int i = 0; i < 10; i++) {
             // this eventually blocks and never make progress.
             // It will always read the good entries and skip over the bad file.
-            src.next();
+            Event e = src.next();
+            LOG.warn("SurviveTwoEmptyFiles ok event {}: {} ", i, e);
+            if (e == null) {
+              // If the source is closing, it may return null here. This could
+              // result in extra count increments if we don't exit here.
+              return;
+            }
             count.getAndIncrement();
           }
         } catch (Exception e) {
@@ -285,7 +301,7 @@ public class TestNaiveFileWALSource {
   }
 
   /**
-   * In this stuation we intially open a file that starts of ok. However, at
+   * In this situation we initially open a file that starts of ok. However, at
    * some point in runs into an unexpected end of file (due to a program /
    * machine/ write failure).
    * 
@@ -305,7 +321,10 @@ public class TestNaiveFileWALSource {
     File corrupt = new File(logdir,
         "walcorrupt.0000000.20091104-101213997-0800.seq");
     System.out.println("corrupt file is named: " + corrupt.getAbsolutePath());
-    FileUtil.dumbfilecopy(new File(WAL_CORRUPT), corrupt);
+    FileUtil
+        .dumbfilecopy(
+            new File(getClass().getClassLoader().getResource(WAL_CORRUPT)
+                .getFile()), corrupt);
     corrupt.deleteOnExit();
 
     // check now, and any age is too old.
@@ -324,7 +343,13 @@ public class TestNaiveFileWALSource {
           for (int i = 0; true; i++) {
             // this eventually blocks and never make progress.
             // It will always read the good entries and skip over the bad file.
-            src.next();
+            Event e = src.next();
+            LOG.warn("SurviveCorruptFile ok event {}: {} ", i, e);
+            if (e == null) {
+              // If the source is closing, it may return null here. This could
+              // result in extra count increments if we don't exit here.
+              return;
+            }
             count.getAndIncrement();
           }
         } catch (Exception e) {
