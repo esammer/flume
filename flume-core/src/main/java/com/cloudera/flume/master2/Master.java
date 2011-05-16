@@ -178,9 +178,9 @@ public class Master implements LeaderElectionAware, Watcher {
     electedMaster = false;
 
     try {
-      adminServer.stop();
-      commandManager.stop();
       configManager.stop();
+      commandManager.stop();
+      adminServer.stop();
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
