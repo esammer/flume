@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import com.cloudera.flume.conf.FlumeConfigData;
 import com.cloudera.flume.conf.FlumeConfiguration;
+import com.cloudera.flume.master2.Master;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 
@@ -40,11 +41,10 @@ import com.google.common.collect.Multimap;
  */
 public class MasterAdminServer {
   static final Logger LOG = LoggerFactory.getLogger(MasterAdminServer.class);
-  final protected FlumeMaster master;
+  final protected Master master;
   private RPCServer stubServer;
 
-  public MasterAdminServer(FlumeMaster master, FlumeConfiguration config)
-      throws IOException {
+  public MasterAdminServer(Master master, FlumeConfiguration config) {
     Preconditions.checkArgument(master != null,
         "FlumeConfigMaster is null in MasterAdminServer!");
     this.master = master;
@@ -55,20 +55,20 @@ public class MasterAdminServer {
     } else if (FlumeConfiguration.RPC_TYPE_THRIFT.equals(rpcType)) {
       stubServer = new MasterAdminServerThrift(this);
     } else {
-      throw new IOException("No valid RPC framework specified in config");
+      throw new IllegalStateException("No valid RPC framework specified in config");
     }
   }
 
   public boolean isFailure(long cmdid) {
-    return master.getCmdMan().isFailure(cmdid);
+    return master.getCommandManager().isFailure(cmdid);
   }
 
   public boolean isSuccess(long cmdid) {
-    return master.getCmdMan().isSuccess(cmdid);
+    return master.getCommandManager().isSuccess(cmdid);
   }
 
   public long submit(Command command) {
-    return master.submit(command);
+    return master.getCommandManager().submit(command);
   }
 
   public void serve() throws IOException {
@@ -80,8 +80,11 @@ public class MasterAdminServer {
   }
 
   public Map<String, StatusManager.NodeStatus> getNodeStatuses() {
-    Map<String, StatusManager.NodeStatus> statuses = master.getStatMan()
-        .getNodeStatuses();
+    // FIXME
+    /*Map<String, StatusManager.NodeStatus> statuses = master.getStatMan()
+        .getNodeStatuses();*/
+    Map<String, StatusManager.NodeStatus> statuses = null;
+
     Map<String, StatusManager.NodeStatus> ret = new HashMap<String, StatusManager.NodeStatus>();
     for (Entry<String, StatusManager.NodeStatus> e : statuses.entrySet()) {
       ret.put(e.getKey(), e.getValue());
@@ -90,7 +93,7 @@ public class MasterAdminServer {
   }
 
   public Map<String, FlumeConfigData> getConfigs() {
-    return master.getSpecMan().getAllConfigs();
+    return master.getConfigManager().getAllConfigs();
   }
 
   /**
@@ -107,15 +110,15 @@ public class MasterAdminServer {
     Map<String, List<String>> resultMap = new HashMap<String, List<String>>();
 
     if (physicalNode != null) {
-      List<String> logicalNodes = master.getSpecMan().getLogicalNode(
+      List<String> logicalNodes = master.getConfigManager().getLogicalNode(
           physicalNode);
 
       if (logicalNodes != null && logicalNodes.size() > 0) {
-        resultMap.put(physicalNode, master.getSpecMan().getLogicalNode(
+        resultMap.put(physicalNode, master.getConfigManager().getLogicalNode(
             physicalNode));
       }
     } else {
-      Multimap<String, String> m = master.getSpecMan().getLogicalNodeMap();
+      Multimap<String, String> m = master.getConfigManager().getLogicalNodeMap();
 
       // Transform the multimap into a map of string => list<string>.
       for (Entry<String, String> entry : m.entries()) {
@@ -135,10 +138,10 @@ public class MasterAdminServer {
    * specified id.
    */
   public boolean hasCmdId(long cmdid) {
-    return master.getCmdMan().getStatus(cmdid) != null;
+    return master.getCommandManager().getStatus(cmdid) != null;
   }
 
   public CommandStatus getCommandStatus(long cmdId) {
-    return master.getCmdMan().getStatus(cmdId);
+    return master.getCommandManager().getStatus(cmdId);
   }
 }
