@@ -25,8 +25,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import jline.Completor;
 import jline.ConsoleReader;
@@ -52,7 +52,8 @@ import com.cloudera.flume.conf.FlumeConfigData;
 import com.cloudera.flume.conf.FlumeConfiguration;
 import com.cloudera.flume.master.Command;
 import com.cloudera.flume.master.CommandStatus;
-import com.cloudera.flume.master.StatusManager;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus.NodeState;
 import com.cloudera.flume.reporter.server.thrift.ThriftFlumeReport;
 import com.cloudera.flume.reporter.server.thrift.ThriftFlumeReportServer;
 import com.cloudera.flume.shell.CommandBuilder;
@@ -284,15 +285,15 @@ public class FlumeShell {
 
   }
 
-  boolean isDone(StatusManager.NodeStatus status) {
-    StatusManager.NodeState state = status.state;
+  boolean isDone(NodeStatus status) {
+    NodeState state = status.getState();
     switch (state) {
     case IDLE:
     case ERROR:
     case LOST:
     case DECOMMISSIONED:
       // if at version 0, do not return true for isDone. (nothing has happened!)
-      return status.version != 0;
+      return status.getVersion() != 0;
     case ACTIVE:
     case OPENING:
     case HELLO:
@@ -309,7 +310,7 @@ public class FlumeShell {
     long start = System.currentTimeMillis();
 
     while (System.currentTimeMillis() - start < maxmillis) {
-      Map<String, StatusManager.NodeStatus> nodemap;
+      Map<String, NodeStatus> nodemap;
       try {
         nodemap = client.getNodeStatuses();
       } catch (IOException e) {
@@ -320,7 +321,7 @@ public class FlumeShell {
 
       boolean busy = false;
       for (String n : nodes) {
-        StatusManager.NodeStatus stat = nodemap.get(n);
+        NodeStatus stat = nodemap.get(n);
         if (stat == null) {
           busy = true;
           break;
@@ -344,12 +345,12 @@ public class FlumeShell {
     return -1;
   }
 
-  boolean isActive(StatusManager.NodeStatus status) {
-    StatusManager.NodeState state = status.state;
+  boolean isActive(NodeStatus status) {
+    NodeState state = status.getState();
     switch (state) {
     case ACTIVE:
     case OPENING:
-      return status.version != 0;
+      return status.getVersion() != 0;
     case IDLE:
     case ERROR:
     case HELLO:
@@ -371,7 +372,7 @@ public class FlumeShell {
     long start = System.currentTimeMillis();
 
     while (System.currentTimeMillis() - start < maxmillis) {
-      Map<String, StatusManager.NodeStatus> nodemap;
+      Map<String, NodeStatus> nodemap;
       try {
         nodemap = client.getNodeStatuses();
       } catch (IOException e) {
@@ -384,7 +385,7 @@ public class FlumeShell {
       // this isn't completely reliable yet -- it should be used with care.
       boolean ready = true;
       for (String n : nodes) {
-        StatusManager.NodeStatus stat = nodemap.get(n);
+        NodeStatus stat = nodemap.get(n);
         if (stat == null) {
           ready = false;
           break;
@@ -533,7 +534,7 @@ public class FlumeShell {
     }
 
     if (cmd.getCommand().equals("getnodestatus")) {
-      Map<String, StatusManager.NodeStatus> nodemap;
+      Map<String, NodeStatus> nodemap;
       try {
         nodemap = client.getNodeStatuses();
       } catch (IOException e) {
@@ -543,9 +544,9 @@ public class FlumeShell {
       }
       System.out.println("Master knows about " + nodemap.size() + " nodes");
 
-      for (Entry<String, StatusManager.NodeStatus> e : nodemap.entrySet()) {
+      for (Entry<String, NodeStatus> e : nodemap.entrySet()) {
         System.out.println("\t" + e.getKey() + " --> "
-            + e.getValue().state.toString());
+            + e.getValue().getState().toString());
       }
       return 0;
     }

@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import com.cloudera.flume.conf.FlumeConfigData;
 import com.cloudera.flume.conf.FlumeConfiguration;
 import com.cloudera.flume.master2.Master;
+import com.cloudera.flume.master2.NodeStatusManager;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Multimap;
 
@@ -55,7 +57,8 @@ public class MasterAdminServer {
     } else if (FlumeConfiguration.RPC_TYPE_THRIFT.equals(rpcType)) {
       stubServer = new MasterAdminServerThrift(this);
     } else {
-      throw new IllegalStateException("No valid RPC framework specified in config");
+      throw new IllegalStateException(
+          "No valid RPC framework specified in config");
     }
   }
 
@@ -79,16 +82,15 @@ public class MasterAdminServer {
     this.stubServer.stop();
   }
 
-  public Map<String, StatusManager.NodeStatus> getNodeStatuses() {
-    // FIXME
-    /*Map<String, StatusManager.NodeStatus> statuses = master.getStatMan()
-        .getNodeStatuses();*/
-    Map<String, StatusManager.NodeStatus> statuses = null;
+  public Map<String, NodeStatusManager.NodeStatus> getNodeStatuses() {
+    Map<String, NodeStatus> statuses = master.getNodeStatusManager()
+        .getNodeStatuses();
+    Map<String, NodeStatus> ret = new HashMap<String, NodeStatus>();
 
-    Map<String, StatusManager.NodeStatus> ret = new HashMap<String, StatusManager.NodeStatus>();
-    for (Entry<String, StatusManager.NodeStatus> e : statuses.entrySet()) {
+    for (Entry<String, NodeStatus> e : statuses.entrySet()) {
       ret.put(e.getKey(), e.getValue());
     }
+
     return ret;
   }
 
@@ -114,11 +116,12 @@ public class MasterAdminServer {
           physicalNode);
 
       if (logicalNodes != null && logicalNodes.size() > 0) {
-        resultMap.put(physicalNode, master.getConfigManager().getLogicalNode(
-            physicalNode));
+        resultMap.put(physicalNode,
+            master.getConfigManager().getLogicalNode(physicalNode));
       }
     } else {
-      Multimap<String, String> m = master.getConfigManager().getLogicalNodeMap();
+      Multimap<String, String> m = master.getConfigManager()
+          .getLogicalNodeMap();
 
       // Transform the multimap into a map of string => list<string>.
       for (Entry<String, String> entry : m.entries()) {

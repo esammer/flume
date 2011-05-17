@@ -37,6 +37,7 @@ import com.cloudera.flume.conf.avro.CommandStatusAvro;
 import com.cloudera.flume.conf.avro.FlumeMasterAdminServerAvro;
 import com.cloudera.flume.conf.avro.FlumeMasterCommandAvro;
 import com.cloudera.flume.conf.avro.FlumeNodeStatusAvro;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus;
 import com.google.common.base.Preconditions;
 
 /**
@@ -52,27 +53,34 @@ public class MasterAdminServerAvro implements FlumeMasterAdminServerAvro,
    * Convert from a { @link StatusManager.NodeStatus } object to Avro's { @link
    * FlumeNodeStatusAvro }.
    */
-  public static FlumeNodeStatusAvro statusToAvro(StatusManager.NodeStatus status) {
+  public static FlumeNodeStatusAvro statusToAvro(NodeStatus status) {
     long time = System.currentTimeMillis();
     FlumeNodeStatusAvro out = new FlumeNodeStatusAvro();
-    out.state = MasterClientServerAvro.stateToAvro(status.state);
-    out.version = status.version;
-    out.lastseen = status.lastseen;
-    out.lastSeenDeltaMillis = time - status.lastseen;
-    out.host = status.host;
-    out.physicalNode = status.physicalNode;
+    out.state = MasterClientServerAvro.stateToAvro(status.getState());
+    out.version = status.getVersion();
+    out.lastseen = status.getStatusLastUpdated();
+    out.lastSeenDeltaMillis = time - status.getStatusLastUpdated();
+    out.host = status.getHostName();
+    out.physicalNode = status.getPhysicalNodeName();
     return out;
   }
 
   /**
    * Convert from a { @link FlumeNodeStatusAvro } object to Flume's native { @link
-   * StatusManager.NodeStatus }.
+   * NodeStatus }.
    */
-  public static StatusManager.NodeStatus statusFromAvro(
-      FlumeNodeStatusAvro status) {
-    return new StatusManager.NodeStatus(MasterClientServerAvro
-        .stateFromAvro(status.state), status.version, status.lastseen,
-        status.host.toString(), status.physicalNode.toString());
+  public static NodeStatus statusFromAvro(
+      FlumeNodeStatusAvro avroStatus) {
+    NodeStatus status = new NodeStatus();
+
+    status.setState(MasterClientServerAvro
+        .stateFromAvro(avroStatus.state));
+    status.setVersion(avroStatus.version);
+    status.setStatusLastUpdated(avroStatus.lastseen);
+    status.setHostName(avroStatus.host.toString());
+    status.setPhysicalNodeName(avroStatus.physicalNode.toString());
+
+    return status;
   }
 
   /**
@@ -132,9 +140,9 @@ public class MasterAdminServerAvro implements FlumeMasterAdminServerAvro,
   @Override
   public Map<CharSequence, FlumeNodeStatusAvro> getNodeStatuses()
       throws AvroRemoteException {
-    Map<String, StatusManager.NodeStatus> statuses = delegate.getNodeStatuses();
+    Map<String, NodeStatus> statuses = delegate.getNodeStatuses();
     Map<CharSequence, FlumeNodeStatusAvro> ret = new HashMap<CharSequence, FlumeNodeStatusAvro>();
-    for (Entry<String, StatusManager.NodeStatus> e : statuses.entrySet()) {
+    for (Entry<String, NodeStatus> e : statuses.entrySet()) {
       ret.put(e.getKey(), statusToAvro(e.getValue()));
     }
     return ret;

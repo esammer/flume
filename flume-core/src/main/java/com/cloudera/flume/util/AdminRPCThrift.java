@@ -33,15 +33,15 @@ import org.slf4j.LoggerFactory;
 
 import com.cloudera.flume.conf.FlumeConfigData;
 import com.cloudera.flume.conf.thrift.CommandStatusThrift;
+import com.cloudera.flume.conf.thrift.FlumeMasterAdminServer.Client;
 import com.cloudera.flume.conf.thrift.FlumeMasterCommandThrift;
 import com.cloudera.flume.conf.thrift.FlumeNodeStatusThrift;
 import com.cloudera.flume.conf.thrift.ThriftFlumeConfigData;
-import com.cloudera.flume.conf.thrift.FlumeMasterAdminServer.Client;
 import com.cloudera.flume.master.Command;
 import com.cloudera.flume.master.CommandStatus;
 import com.cloudera.flume.master.MasterAdminServerThrift;
 import com.cloudera.flume.master.MasterClientServerThrift;
-import com.cloudera.flume.master.StatusManager.NodeStatus;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus;
 
 /**
  * Thrift implementation of the Flume admin control RPC. This class manages the

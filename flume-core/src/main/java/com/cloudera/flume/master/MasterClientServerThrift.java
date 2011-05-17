@@ -29,13 +29,13 @@ import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cloudera.flume.conf.FlumeConfiguration;
-import com.cloudera.flume.conf.thrift.ThriftFlumeClientServer;
-import com.cloudera.flume.conf.thrift.ThriftFlumeConfigData;
 import com.cloudera.flume.conf.FlumeConfigData;
+import com.cloudera.flume.conf.FlumeConfiguration;
 import com.cloudera.flume.conf.thrift.FlumeNodeState;
+import com.cloudera.flume.conf.thrift.ThriftFlumeClientServer;
 import com.cloudera.flume.conf.thrift.ThriftFlumeClientServer.Iface;
-import com.cloudera.flume.master.StatusManager.NodeState;
+import com.cloudera.flume.conf.thrift.ThriftFlumeConfigData;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus.NodeState;
 import com.cloudera.flume.reporter.ReportEvent;
 import com.cloudera.flume.reporter.server.thrift.ThriftFlumeReport;
 import com.cloudera.flume.util.ThriftServer;

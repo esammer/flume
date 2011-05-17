@@ -40,7 +40,7 @@ import com.cloudera.flume.conf.avro.AvroFlumeClientServer;
 import com.cloudera.flume.handlers.endtoend.CollectorAckListener;
 import com.cloudera.flume.handlers.endtoend.AckListener;
 import com.cloudera.flume.master.MasterClientServerAvro;
-import com.cloudera.flume.master.StatusManager.NodeStatus;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus;
 import com.cloudera.flume.reporter.ReportEvent;
 import com.cloudera.flume.reporter.server.AvroReportServer;
 import com.google.common.base.Preconditions;

@@ -19,6 +19,7 @@
 package com.cloudera.flume.master;
 
 import java.io.IOException;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -39,6 +40,7 @@ import com.cloudera.flume.conf.thrift.FlumeMasterCommandThrift;
 import com.cloudera.flume.conf.thrift.FlumeNodeStatusThrift;
 import com.cloudera.flume.conf.thrift.ThriftFlumeConfigData;
 import com.cloudera.flume.conf.thrift.FlumeMasterAdminServer.Iface;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus;
 import com.cloudera.flume.util.ThriftServer;
 import com.google.common.base.Preconditions;
 
@@ -55,16 +57,15 @@ public class MasterAdminServerThrift extends ThriftServer implements Iface,
    * Convert from a { @link StatusManager.NodeStatus } object to Thrift's { @link
    * FlumeNodeStatusThrift }.
    */
-  public static FlumeNodeStatusThrift statusToThrift(
-      StatusManager.NodeStatus status) {
+  public static FlumeNodeStatusThrift statusToThrift(NodeStatus status) {
     long time = System.currentTimeMillis();
     FlumeNodeStatusThrift out = new FlumeNodeStatusThrift();
-    out.state = MasterClientServerThrift.stateToThrift(status.state);
-    out.version = status.version;
-    out.lastseen = status.lastseen;
-    out.lastSeenDeltaMillis = time - status.lastseen;
-    out.host = status.host;
-    out.physicalNode = status.physicalNode;
+    out.state = MasterClientServerThrift.stateToThrift(status.getState());
+    out.version = status.getVersion();
+    out.lastseen = status.getStatusLastUpdated();
+    out.lastSeenDeltaMillis = time - status.getStatusLastUpdated();
+    out.host = status.getHostName();
+    out.physicalNode = status.getPhysicalNodeName();
     return out;
   }
 
@@ -72,11 +73,18 @@ public class MasterAdminServerThrift extends ThriftServer implements Iface,
    * Convert from a { @link FlumeNodeStatusThrift } object to the native { @link
    * StatusManager.NodeStatus }.
    */
-  public static StatusManager.NodeStatus statusFromThrift(
-      FlumeNodeStatusThrift status) {
-    return new StatusManager.NodeStatus(MasterClientServerThrift
-        .stateFromThrift(status.state), status.version, status.lastseen,
-        status.host, status.physicalNode);
+  public static NodeStatus statusFromThrift(FlumeNodeStatusThrift thriftStatus) {
+    NodeStatus status = new NodeStatus();
+
+    status.setState(MasterClientServerThrift
+        .stateFromThrift(thriftStatus.state));
+
+    status.setVersion(thriftStatus.version);
+    status.setStatusLastUpdated(thriftStatus.lastseen);
+    status.setHostName(thriftStatus.host);
+    status.setPhysicalNodeName(thriftStatus.physicalNode);
+
+    return status;
   }
 
   /**
@@ -128,19 +136,18 @@ public class MasterAdminServerThrift extends ThriftServer implements Iface,
     return delegate.submit(commandFromThrift(command));
   }
 
-  protected static FlumeNodeStatusThrift toThrift(
-      StatusManager.NodeStatus status) {
+  protected static FlumeNodeStatusThrift toThrift(NodeStatus status) {
     long time = System.currentTimeMillis();
     return new FlumeNodeStatusThrift(MasterClientServerThrift
-        .stateToThrift(status.state), status.version, status.lastseen, time
-        - status.lastseen, status.host, status.physicalNode);
+        .stateToThrift(status.getState()), status.getVersion(), status.getStatusLastUpdated(), time
+        - status.getStatusLastUpdated(), status.getHostName(), status.getPhysicalNodeName());
   }
 
   @Override
   public Map<String, FlumeNodeStatusThrift> getNodeStatuses() throws TException {
-    Map<String, StatusManager.NodeStatus> statuses = delegate.getNodeStatuses();
+    Map<String, NodeStatus> statuses = delegate.getNodeStatuses();
     Map<String, FlumeNodeStatusThrift> ret = new HashMap<String, FlumeNodeStatusThrift>();
-    for (Entry<String, StatusManager.NodeStatus> e : statuses.entrySet()) {
+    for (Entry<String, NodeStatus> e : statuses.entrySet()) {
       ret.put(e.getKey(), toThrift(e.getValue()));
     }
     return ret;

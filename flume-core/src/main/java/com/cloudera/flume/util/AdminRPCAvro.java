@@ -42,7 +42,7 @@ import com.cloudera.flume.master.Command;
 import com.cloudera.flume.master.CommandStatus;
 import com.cloudera.flume.master.MasterAdminServerAvro;
 import com.cloudera.flume.master.MasterClientServerAvro;
-import com.cloudera.flume.master.StatusManager.NodeStatus;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus;
 
 /**
  * Avro implementation of the Flume admin control RPC. This class manages the

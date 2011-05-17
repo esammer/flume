@@ -18,13 +18,14 @@
 package com.cloudera.flume.util;
 
 import java.io.IOException;
+
 import java.util.List;
 import java.util.Map;
 
 import com.cloudera.flume.conf.FlumeConfigData;
 import com.cloudera.flume.master.Command;
 import com.cloudera.flume.master.CommandStatus;
-import com.cloudera.flume.master.StatusManager;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus;
 
 /**
  * This interface represents the client side of master control RPC exchange. We
@@ -38,7 +39,7 @@ public interface AdminRPC {
 
   public long submit(Command command) throws IOException;
 
-  public Map<String, StatusManager.NodeStatus> getNodeStatuses()
+  public Map<String, NodeStatus> getNodeStatuses()
       throws IOException;
 
   public Map<String, FlumeConfigData> getConfigs() throws IOException;

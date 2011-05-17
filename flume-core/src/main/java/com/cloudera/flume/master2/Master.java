@@ -1,16 +1,10 @@
 package com.cloudera.flume.master2;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +19,6 @@ import com.cloudera.flume.master.logical.LogicalConfigurationManager;
 import com.cloudera.zookeeper.support.election.LeaderElectionAware;
 import com.cloudera.zookeeper.support.election.LeaderElectionSupport;
 import com.cloudera.zookeeper.support.election.LeaderElectionSupport.EventType;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 public class Master implements LeaderElectionAware, Watcher {
 
@@ -38,20 +31,15 @@ public class Master implements LeaderElectionAware, Watcher {
   private volatile boolean electedMaster;
   private ZooKeeper zooKeeper;
 
-  private ScheduledExecutorService nodeUpdaterService;
-
   private MasterAdminServer adminServer;
   private CommandManager commandManager;
   private ConfigurationManager configManager;
   private MasterAckManager ackManager;
+  private NodeStatusManager nodeStatusManager;
 
   public Master() {
     electionSupport = new LeaderElectionSupport();
     electedMaster = false;
-
-    nodeUpdaterService = Executors
-        .newSingleThreadScheduledExecutor(new ThreadFactoryBuilder()
-            .setNameFormat("nodeUpdater-%s").build());
 
     adminServer = new MasterAdminServer(this, FlumeConfiguration.get());
     commandManager = new CommandManager();
@@ -59,6 +47,7 @@ public class Master implements LeaderElectionAware, Watcher {
         new FlowConfigManager.FailoverFlowConfigManager(new ConfigManager(),
             null), new ConfigManager(), null);
     ackManager = new MasterAckManager();
+    nodeStatusManager = new NodeStatusManager();
   }
 
   public void start() throws IOException {
@@ -68,77 +57,23 @@ public class Master implements LeaderElectionAware, Watcher {
       logger.error("Unable to connect to ZooKeeper. Exception follows.", e);
     }
 
+    nodeStatusManager.setZooKeeper(zooKeeper);
+    nodeStatusManager.setNodeGroupName("/flume2/" + nodeGroupName);
+
     electionSupport.setZooKeeper(zooKeeper);
     electionSupport.setRootNodeName("/flume2/" + masterElectionGroupName);
 
     electionSupport.addObserver(this);
 
+    nodeStatusManager.start();
     electionSupport.start();
-
-    /*
-     * Update the node list from ZooKeeper every 10 seconds. This should
-     * probably be implemented using watches, but I don't want to deal with that
-     * yet.
-     */
-    nodeUpdaterService.scheduleAtFixedRate(new Runnable() {
-
-      @Override
-      public void run() {
-        try {
-          updateNodes();
-        } catch (KeeperException e) {
-          logger.error(
-              "Unable to update Flume node list. ZooKeeper error follows.", e);
-        } catch (InterruptedException e) {
-          logger.error("Unable to update Flume node list. Interrupted.");
-          Thread.currentThread().interrupt();
-        }
-      }
-    }, 0, 10, TimeUnit.SECONDS);
   }
 
   public void stop() {
+    logger.info("Master stopping");
+
     electionSupport.stop();
-
-    nodeUpdaterService.shutdown();
-
-    for (int i = 1; i <= 5; i++) {
-      logger.info("Waiting for node update thread to stop. Attempt {} of 5", i);
-      try {
-        if (nodeUpdaterService.awaitTermination(1, TimeUnit.SECONDS)) {
-          break;
-        }
-      } catch (InterruptedException e) {
-        /*
-         * If we're interrupted while trying to shut things down, we just break.
-         */
-        break;
-      }
-    }
-
-    if (!nodeUpdaterService.isTerminated()) {
-      logger
-          .warn("Unable to stop the node update thread in the allotted time. Giving up.");
-    }
-  }
-
-  private void updateNodes() throws KeeperException, InterruptedException {
-    logger.debug("Updating Flume node list from ZK");
-
-    List<String> nodes = zooKeeper
-        .getChildren("/flume2/" + nodeGroupName, true);
-
-    logger.debug("Found {} Flume nodes registered in zookeeper", nodes.size());
-
-    for (String node : nodes) {
-      String fqNode = "/flume2/" + nodeGroupName + "/" + node;
-      Stat stat = new Stat();
-      byte[] nodeData = zooKeeper.getData("/flume2/" + nodeGroupName + "/"
-          + node, false, stat);
-
-      logger.debug("Node:{} stat:{} data.length:{}", new Object[] { fqNode,
-          stat, nodeData.length });
-    }
+    nodeStatusManager.stop();
   }
 
   @Override
@@ -164,6 +99,7 @@ public class Master implements LeaderElectionAware, Watcher {
     electedMaster = true;
     logger.info("Elected master");
 
+    // FIXME: This should cause master failure.
     try {
       configManager.start();
       commandManager.start();
@@ -230,6 +166,14 @@ public class Master implements LeaderElectionAware, Watcher {
 
   public void setAckManager(MasterAckManager ackManager) {
     this.ackManager = ackManager;
+  }
+
+  public NodeStatusManager getNodeStatusManager() {
+    return nodeStatusManager;
+  }
+
+  public void setNodeStatusManager(NodeStatusManager nodeStatusManager) {
+    this.nodeStatusManager = nodeStatusManager;
   }
 
 }

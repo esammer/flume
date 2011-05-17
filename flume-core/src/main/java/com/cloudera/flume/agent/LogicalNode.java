@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -40,8 +38,8 @@ import com.cloudera.flume.core.Driver.DriverState;
 import com.cloudera.flume.core.EventSink;
 import com.cloudera.flume.core.EventSource;
 import com.cloudera.flume.core.connector.DirectDriver;
-import com.cloudera.flume.master.StatusManager.NodeState;
-import com.cloudera.flume.master.StatusManager.NodeStatus;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus.NodeState;
 import com.cloudera.flume.reporter.ReportEvent;
 import com.cloudera.flume.reporter.Reportable;
 import com.cloudera.util.NetUtils;
@@ -113,8 +111,13 @@ public class LogicalNode implements Reportable {
 
     // Note: version and lastSeen aren't kept up-to-date on the logical node.
     // The master fills them in when it receives a NodeStatus heartbeat.
-    state = new NodeStatus(NodeState.HELLO, 0, 0, NetUtils.localhost(),
-        FlumeNode.getInstance().getPhysicalNodeName());
+    state = new NodeStatus();
+    state.setState(NodeState.HELLO);
+    state.setStatusLastUpdated(0);
+    state.setVersion(0);
+    state.setHostName(NetUtils.localhost());
+    state.setPhysicalNodeName(FlumeNode.getInstance().getPhysicalNodeName());
+
     // Set version to -1 so that all non-negative versions will be 'later'
     lastGoodCfg = new FlumeConfigData(0, "null", "null", VERSION_INFIMUM,
         VERSION_INFIMUM, FlumeConfiguration.get().getDefaultFlowName());

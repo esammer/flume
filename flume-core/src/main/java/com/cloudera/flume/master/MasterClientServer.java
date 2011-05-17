@@ -28,7 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import com.cloudera.flume.conf.FlumeConfigData;
 import com.cloudera.flume.conf.FlumeConfiguration;
-import com.cloudera.flume.master.StatusManager.NodeState;
+import com.cloudera.flume.master2.Master;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus.NodeState;
 import com.cloudera.flume.reporter.ReportEvent;
 import com.cloudera.flume.reporter.ReportManager;
 import com.cloudera.flume.reporter.ReportUtil;
@@ -43,12 +44,12 @@ import com.google.common.base.Preconditions;
  */
 public class MasterClientServer {
   static final Logger LOG = LoggerFactory.getLogger(MasterClientServer.class);
-  final protected FlumeMaster master;
+  final protected Master master;
   final protected FlumeConfiguration config;
 
   RPCServer masterRPC;
 
-  public MasterClientServer(FlumeMaster master, FlumeConfiguration config)
+  public MasterClientServer(Master master, FlumeConfiguration config)
       throws IOException {
     Preconditions.checkArgument(master != null,
         "FlumeConfigMaster is null in MasterClientServer!");
@@ -65,7 +66,7 @@ public class MasterClientServer {
     }
   }
 
-  public MasterClientServer(FlumeMaster master, FlumeConfiguration config,
+  public MasterClientServer(Master master, FlumeConfiguration config,
       RPCServer rpc) {
     this.master = master;
     this.config = config;
@@ -80,15 +81,15 @@ public class MasterClientServer {
   }
 
   public List<String> getLogicalNodes(String physNode) {
-    return master.getSpecMan().getLogicalNode(physNode);
+    return master.getConfigManager().getLogicalNode(physNode);
   }
 
   public Map<String, Integer> getChokeMap(String physNode) {
-    return master.getSpecMan().getChokeMap(physNode);
+    return master.getConfigManager().getChokeMap(physNode);
   }
 
   public FlumeConfigData getConfig(String host) {
-    FlumeConfigData config = master.getSpecMan().getConfig(host);
+    FlumeConfigData config = master.getConfigManager().getConfig(host);
     if (config != null) {
       return config;
     }
@@ -103,20 +104,21 @@ public class MasterClientServer {
       String clienthost, NodeState s, long version) {
 
     // sanity check with physicalnode.
-    List<String> lns = master.getSpecMan().getLogicalNode(physicalNode);
+    List<String> lns = master.getConfigManager().getLogicalNode(physicalNode);
     if (lns == null || !lns.contains(logicalNode)) {
       if (physicalNode.equals(logicalNode)) {
         // auto add a default logical node if there are no logical nodes for a
         // physical node.
-        master.getSpecMan().addLogicalNode(physicalNode, logicalNode);
+        master.getConfigManager().addLogicalNode(physicalNode, logicalNode);
       }
       LOG.warn("Recieved heartbeat from node '" + physicalNode + "/"
           + logicalNode + "' that is not be set by master ");
     }
 
+    // FIXME: Does this need to exist anymore?
     boolean configChanged = master.getStatMan().updateHeartbeatStatus(
         clienthost, physicalNode, logicalNode, s, version);
-    FlumeConfigData cfg = master.getSpecMan().getConfig(logicalNode);
+    FlumeConfigData cfg = master.getConfigManager().getConfig(logicalNode);
 
     if (cfg == null || version < cfg.getTimestamp()) {
       configChanged = true;
@@ -127,11 +129,11 @@ public class MasterClientServer {
   }
 
   public void acknowledge(String ackid) {
-    master.getAckMan().acknowledge(ackid);
+    master.getAckManager().acknowledge(ackid);
   }
 
   public boolean checkAck(String ackid) {
-    return master.getAckMan().check(ackid);
+    return master.getAckManager().check(ackid);
   }
 
   /**

@@ -33,11 +33,11 @@ import org.slf4j.LoggerFactory;
 
 import com.cloudera.flume.conf.avro.AvroFlumeConfigData;
 import com.cloudera.flume.conf.avro.FlumeNodeState;
+import com.cloudera.flume.master2.NodeStatusManager.NodeStatus.NodeState;
 import com.cloudera.flume.reporter.server.avro.AvroFlumeReport;
 import com.cloudera.flume.conf.FlumeConfigData;
 import com.cloudera.flume.conf.FlumeConfiguration;
 import com.cloudera.flume.conf.avro.AvroFlumeClientServer;
-import com.cloudera.flume.master.StatusManager.NodeState;
 import com.cloudera.flume.reporter.ReportEvent;
 
 import com.google.common.base.Preconditions;
