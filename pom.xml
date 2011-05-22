@@ -48,6 +48,7 @@
 	<module>flume-node-web</module>
 	<module>flume-distribution</module>
 	<module>flume-log4j-appender</module>
+  <module>flume-integration-tests</module>
 	<module>plugins/flume-plugin-helloworld</module>
 	<module>plugins/flume-plugin-hbasesink</module>
       </modules>

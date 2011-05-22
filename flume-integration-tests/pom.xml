@@ -1,0 +1,39 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>flume</artifactId>
+    <groupId>com.cloudera</groupId>
+    <version>0.9.4-SNAPSHOT</version>
+  </parent>
+
+  <groupId>com.cloudera</groupId>
+  <artifactId>flume-integration-tests</artifactId>
+  <version>0.9.4-SNAPSHOT</version>
+  <name>Flume integration testing</name>
+
+  <properties>
+    <flume.test.master.war>value</flume.test.master.war>
+    <flume.test.master.version>0.9.4-SNAPSHOT</flume.test.master.version>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>com.cloudera</groupId>
+      <artifactId>flume-distribution</artifactId>
+      <version>0.9.4-SNAPSHOT</version>
+      <type>tar.gz</type>
+      <classifier>bin</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.3.2</version>
+    </dependency>
+
+  </dependencies>
+
+</project>
