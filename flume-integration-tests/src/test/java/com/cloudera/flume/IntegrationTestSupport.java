@@ -18,18 +18,10 @@ public class IntegrationTestSupport {
   private File distributionDirectory;
   private File workingDirectory;
 
-  public IntegrationTestSupport() {
-    String distProp = System.getProperty("flume.distribution.dir");
-
-    Preconditions.checkNotNull(distProp,
-        "The property flume.distribution.dir is not set");
-
-    distributionDirectory = new File(distProp);
+  public void setUp() throws IOException {
     workingDirectory = new File(tmpDirectory + File.separator + "flume-int-"
         + System.currentTimeMillis() + "-" + Thread.currentThread().getId());
-  }
 
-  public void setUp() throws IOException {
     logger.info("Establishing a clean Flume environment in {} from {}",
         workingDirectory, distributionDirectory);
 
