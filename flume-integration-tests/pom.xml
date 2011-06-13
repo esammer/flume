@@ -13,11 +13,6 @@
   <version>0.9.4-SNAPSHOT</version>
   <name>Flume integration testing</name>
 
-  <properties>
-    <flume.test.master.war>value</flume.test.master.war>
-    <flume.test.master.version>0.9.4-SNAPSHOT</flume.test.master.version>
-  </properties>
-
   <build>
     <plugins>
 
@@ -27,13 +22,12 @@
         <version>2.2</version>
         <executions>
           <execution>
-            <id></id>
-            <phase>generate-test-sources</phase>
+            <id>unpack-dist</id>
+            <phase>generate-test-resources</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
             <configuration>
-              <verbose>true</verbose>
               <artifactItems>
                 <artifactItem>
                   <groupId>com.cloudera</groupId>
@@ -42,7 +36,7 @@
                   <type>tar.gz</type>
                   <classifier>bin</classifier>
                   <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/deps</outputDirectory>
+                  <outputDirectory>${project.build.directory}/flume-distribution</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
@@ -66,7 +60,13 @@
       <artifactId>flume-distribution</artifactId>
       <version>0.9.4-SNAPSHOT</version>
       <classifier>bin</classifier>
-      <type>tar.gz</type>
+      <type>pom</type>
+      <exclusions>
+        <exclusion>
+          <groupId>com.cloudera</groupId>
+          <artifactId>flume-docs</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
   </dependencies>
